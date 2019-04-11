@@ -1,0 +1,7727 @@
+1
+00:00:00,000 --> 00:00:00,090
+
+
+2
+00:00:00,090 --> 00:00:02,490
+The following content is
+provided under a Creative
+
+3
+00:00:02,490 --> 00:00:04,030
+Commons license.
+
+4
+00:00:04,030 --> 00:00:06,360
+Your support will help
+MIT OpenCourseWare
+
+5
+00:00:06,360 --> 00:00:10,720
+continue to offer high quality
+educational resources for free.
+
+6
+00:00:10,720 --> 00:00:13,320
+To make a donation or
+view additional materials
+
+7
+00:00:13,320 --> 00:00:17,280
+from hundreds of MIT courses,
+visit MIT OpenCourseWare
+
+8
+00:00:17,280 --> 00:00:18,450
+at ocw.mit.edu.
+
+9
+00:00:18,450 --> 00:00:21,530
+
+
+10
+00:00:21,530 --> 00:00:22,530
+ERIK DEMAINE: All right.
+
+11
+00:00:22,530 --> 00:00:25,349
+Time for some more geometry,
+and, in particular,
+
+12
+00:00:25,349 --> 00:00:26,890
+some more fractional
+cascading, which
+
+13
+00:00:26,890 --> 00:00:31,150
+is a cool topic we
+saw last lecture.
+
+14
+00:00:31,150 --> 00:00:33,340
+And then we're going to do
+a different kind of data
+
+15
+00:00:33,340 --> 00:00:35,048
+structure called
+kinetic data structures,
+
+16
+00:00:35,048 --> 00:00:37,690
+where you have moving data.
+
+17
+00:00:37,690 --> 00:00:39,880
+And that will actually
+be most of the lecture.
+
+18
+00:00:39,880 --> 00:00:42,550
+But last time, we saw this
+nice general black box
+
+19
+00:00:42,550 --> 00:00:44,410
+transformation,
+fractional cascading,
+
+20
+00:00:44,410 --> 00:00:47,230
+and we didn't really see a
+lot of applications of it.
+
+21
+00:00:47,230 --> 00:00:49,680
+We saw a simple example in
+orthogonal range searching.
+
+22
+00:00:49,680 --> 00:00:51,430
+But I want to show you
+today a much cooler
+
+23
+00:00:51,430 --> 00:00:55,210
+one in the original
+fractional cascading papers.
+
+24
+00:00:55,210 --> 00:00:56,980
+So remember, in
+general, what it lets
+
+25
+00:00:56,980 --> 00:00:59,650
+you do is search for
+a common element x,
+
+26
+00:00:59,650 --> 00:01:04,180
+find its predecessor and
+successor in k sorted lists,
+
+27
+00:01:04,180 --> 00:01:06,430
+in order log n plus
+k time, instead
+
+28
+00:01:06,430 --> 00:01:09,650
+of the obvious k
+times log n, where
+
+29
+00:01:09,650 --> 00:01:12,310
+n is the length of each list.
+
+30
+00:01:12,310 --> 00:01:15,790
+And the general version
+that we talked about
+
+31
+00:01:15,790 --> 00:01:18,160
+is, if you're
+navigating a graph,
+
+32
+00:01:18,160 --> 00:01:20,740
+and at each node of the graph,
+you have one of these lists,
+
+33
+00:01:20,740 --> 00:01:25,300
+then you can instantly know
+where x fits in that list
+
+34
+00:01:25,300 --> 00:01:28,360
+in constant time per thing, as
+long as you spend log n time
+
+35
+00:01:28,360 --> 00:01:32,140
+to get started, provided your
+graph has bounded degree.
+
+36
+00:01:32,140 --> 00:01:34,510
+That was necessary to do
+all the fractional cascading
+
+37
+00:01:34,510 --> 00:01:38,950
+stuff of copying half
+into the next level up.
+
+38
+00:01:38,950 --> 00:01:41,860
+So we're going to
+use this result
+
+39
+00:01:41,860 --> 00:01:45,310
+to get a lag factor improvement
+in our old friend orthogonal
+
+40
+00:01:45,310 --> 00:01:46,660
+range searching.
+
+41
+00:01:46,660 --> 00:01:53,800
+So let's do orthogonal
+range searching.
+
+42
+00:01:53,800 --> 00:01:56,515
+So last time, we
+saw how to do two
+
+43
+00:01:56,515 --> 00:02:00,250
+dimensional orthogonal range
+searching in log n per query.
+
+44
+00:02:00,250 --> 00:02:03,570
+That was using fractional
+cascading, or, really,
+
+45
+00:02:03,570 --> 00:02:05,050
+half of fractional
+cascading, which
+
+46
+00:02:05,050 --> 00:02:06,520
+was just a cross-linking idea.
+
+47
+00:02:06,520 --> 00:02:09,729
+
+
+48
+00:02:09,729 --> 00:02:13,720
+This time we're going to do
+3D orthogonal range searching
+
+49
+00:02:13,720 --> 00:02:17,100
+in log n time.
+
+50
+00:02:17,100 --> 00:02:20,580
+Our space is going to go
+up by a couple log factors.
+
+51
+00:02:20,580 --> 00:02:21,580
+But this is pretty cool.
+
+52
+00:02:21,580 --> 00:02:23,170
+In general, for d
+dimensions, this
+
+53
+00:02:23,170 --> 00:02:27,100
+gives us log to the d minus
+two, whereas last class, we saw
+
+54
+00:02:27,100 --> 00:02:28,690
+how to do log the d minus 1.
+
+55
+00:02:28,690 --> 00:02:31,180
+Now, this is static only.
+
+56
+00:02:31,180 --> 00:02:33,574
+You could probably
+do poly-log update.
+
+57
+00:02:33,574 --> 00:02:34,990
+But let's not worry
+about updates.
+
+58
+00:02:34,990 --> 00:02:38,350
+We're just trying to do static.
+
+59
+00:02:38,350 --> 00:02:43,300
+So 3D orthogonal range search
+using fractional cascading--
+
+60
+00:02:43,300 --> 00:02:44,890
+this is kind of a tour de force.
+
+61
+00:02:44,890 --> 00:02:47,230
+There's a really
+cool result. It's
+
+62
+00:02:47,230 --> 00:02:50,350
+in the "Applications of
+Fractional Cascading"
+
+63
+00:02:50,350 --> 00:02:52,150
+paper by Chazelle and Guibas.
+
+64
+00:02:52,150 --> 00:02:55,360
+And it proceeds in
+four easy steps.
+
+65
+00:02:55,360 --> 00:02:57,850
+Each of the steps are easy,
+but it's kind of amazing
+
+66
+00:02:57,850 --> 00:02:59,600
+where we get to.
+
+67
+00:02:59,600 --> 00:03:04,300
+We're going to start out with
+a two dimensional restricted
+
+68
+00:03:04,300 --> 00:03:05,850
+orthogonal range query.
+
+69
+00:03:05,850 --> 00:03:09,160
+We'll see why at the very end.
+
+70
+00:03:09,160 --> 00:03:11,140
+But this is actually
+from another paper
+
+71
+00:03:11,140 --> 00:03:15,590
+of Chazelle in the same year.
+
+72
+00:03:15,590 --> 00:03:19,660
+OK, in general,
+remember, in 3-D,
+
+73
+00:03:19,660 --> 00:03:25,270
+we're trying to do
+querying with a rectangle--
+
+74
+00:03:25,270 --> 00:03:32,770
+a1, b1, a2, b2, a3, b3.
+
+75
+00:03:32,770 --> 00:03:34,830
+We want to know all the
+points in that rectangle.
+
+76
+00:03:34,830 --> 00:03:37,330
+So I'm going to start out with
+a very restricted form, which
+
+77
+00:03:37,330 --> 00:03:39,805
+is only two dimensional,
+for whatever reason.
+
+78
+00:03:39,805 --> 00:03:41,350
+And we'll see why later.
+
+79
+00:03:41,350 --> 00:03:44,560
+y-coordinate and
+z-coordinate, skipping x--
+
+80
+00:03:44,560 --> 00:03:46,510
+and the left end
+point doesn't exist.
+
+81
+00:03:46,510 --> 00:03:49,030
+So you go all the way up to
+b2, and you go all the way up
+
+82
+00:03:49,030 --> 00:03:49,870
+to b3.
+
+83
+00:03:49,870 --> 00:03:53,285
+This is a quarter plane
+in two dimensions.
+
+84
+00:03:53,285 --> 00:03:54,910
+I want to know all
+the points in there.
+
+85
+00:03:54,910 --> 00:03:57,310
+It's the same as saying
+all the points that
+
+86
+00:03:57,310 --> 00:03:59,860
+are dominated by this point.
+
+87
+00:03:59,860 --> 00:04:02,290
+Both y- and z-coordinates
+are dominated
+
+88
+00:04:02,290 --> 00:04:04,150
+by that yz coordinate.
+
+89
+00:04:04,150 --> 00:04:08,500
+This is b2, b3.
+
+90
+00:04:08,500 --> 00:04:13,524
+So we can solve this
+in log n time plus k.
+
+91
+00:04:13,524 --> 00:04:15,940
+But I want to be a little bit
+more precise about what that
+
+92
+00:04:15,940 --> 00:04:19,630
+log in is, and say that
+this costs whatever it costs
+
+93
+00:04:19,630 --> 00:04:27,080
+to search for b3, the
+z-coordinate, in a z list--
+
+94
+00:04:27,080 --> 00:04:31,150
+in a list of
+z-coordinates of points--
+
+95
+00:04:31,150 --> 00:04:33,196
+plus order k.
+
+96
+00:04:33,196 --> 00:04:34,570
+I write it this
+way because if we
+
+97
+00:04:34,570 --> 00:04:38,380
+have many searches among lists,
+then we can speed things up.
+
+98
+00:04:38,380 --> 00:04:40,255
+So I don't want to just
+think of it as log n.
+
+99
+00:04:40,255 --> 00:04:44,350
+I want to think of it as one
+of these fractional cascading
+
+100
+00:04:44,350 --> 00:04:45,740
+operations.
+
+101
+00:04:45,740 --> 00:04:49,360
+So this is the time bound I
+want to get for finding the k
+
+102
+00:04:49,360 --> 00:04:51,580
+points in this search range.
+
+103
+00:04:51,580 --> 00:04:54,260
+
+
+104
+00:04:54,260 --> 00:04:56,620
+Now, here's the fun part.
+
+105
+00:04:56,620 --> 00:04:59,900
+We're going to transform this
+into a kind of stabbing ray
+
+106
+00:04:59,900 --> 00:05:04,630
+problem, like we saw last class,
+and in the retroactive stuff,
+
+107
+00:05:04,630 --> 00:05:05,140
+and so on.
+
+108
+00:05:05,140 --> 00:05:27,400
+
+
+109
+00:05:27,400 --> 00:05:30,135
+So let's suppose I
+have some points.
+
+110
+00:05:30,135 --> 00:05:33,640
+
+
+111
+00:05:33,640 --> 00:05:35,640
+I'm just going to draw
+an arbitrary arrangement.
+
+112
+00:05:35,640 --> 00:05:40,140
+Hopefully, it's
+reasonably interesting.
+
+113
+00:05:40,140 --> 00:05:43,150
+Those are the points I
+want to be able to query.
+
+114
+00:05:43,150 --> 00:05:49,200
+And if I'm given, say,
+a query like this one,
+
+115
+00:05:49,200 --> 00:05:52,750
+I want to know all
+the points in here.
+
+116
+00:05:52,750 --> 00:05:57,090
+So what I'm going to do is
+draw a leftward horizontal ray
+
+117
+00:05:57,090 --> 00:06:00,000
+from the query point.
+
+118
+00:06:00,000 --> 00:06:03,150
+And I'm going to draw--
+maybe use a color--
+
+119
+00:06:03,150 --> 00:06:05,625
+upward vertical rays
+from each of the points.
+
+120
+00:06:05,625 --> 00:06:13,581
+
+
+121
+00:06:13,581 --> 00:06:14,080
+OK.
+
+122
+00:06:14,080 --> 00:06:18,130
+And where there's
+crossings, those
+
+123
+00:06:18,130 --> 00:06:22,610
+correspond to points that are
+in the query quarter plane.
+
+124
+00:06:22,610 --> 00:06:24,140
+OK, so same problem--
+
+125
+00:06:24,140 --> 00:06:26,870
+but now, thinking about rays.
+
+126
+00:06:26,870 --> 00:06:31,460
+So here's a cool thing you
+can do with this approach.
+
+127
+00:06:31,460 --> 00:06:36,100
+So we want to preprocess these
+vertical rays so that, then, we
+
+128
+00:06:36,100 --> 00:06:38,135
+can stab with a horizontal ray.
+
+129
+00:06:38,135 --> 00:06:39,760
+And it's actually
+easier to think of it
+
+130
+00:06:39,760 --> 00:06:41,680
+as coming from the
+left, because that's
+
+131
+00:06:41,680 --> 00:06:43,480
+kind of a consistent
+x-coordinate,
+
+132
+00:06:43,480 --> 00:06:44,680
+and walking to the right.
+
+133
+00:06:44,680 --> 00:06:46,310
+I'd like to find
+this intersection,
+
+134
+00:06:46,310 --> 00:06:47,950
+then find this one,
+then find this one.
+
+135
+00:06:47,950 --> 00:06:50,650
+Eventually, I get to the
+desired y-coordinate.
+
+136
+00:06:50,650 --> 00:06:56,630
+This is the y direction,
+and this is z direction.
+
+137
+00:06:56,630 --> 00:06:58,510
+Then I stop.
+
+138
+00:06:58,510 --> 00:07:00,700
+So if I could get started
+over here in log n time,
+
+139
+00:07:00,700 --> 00:07:04,150
+and then do a walk in constant
+time per intersection,
+
+140
+00:07:04,150 --> 00:07:06,110
+I'd be golden.
+
+141
+00:07:06,110 --> 00:07:08,900
+That is possible.
+
+142
+00:07:08,900 --> 00:07:13,690
+And the way that
+Chazelle did this--
+
+143
+00:07:13,690 --> 00:07:15,250
+I'm going to erase
+the query ray--
+
+144
+00:07:15,250 --> 00:07:19,440
+
+
+145
+00:07:19,440 --> 00:07:23,250
+is to decompose the plane
+in a pretty simple way.
+
+146
+00:07:23,250 --> 00:07:27,480
+We're going to draw a horizontal
+segment from each point.
+
+147
+00:07:27,480 --> 00:07:29,100
+We're going to extend
+it to the right
+
+148
+00:07:29,100 --> 00:07:31,058
+until it hits something,
+extend it to the left.
+
+149
+00:07:31,058 --> 00:07:32,940
+In this case, it
+goes off to infinity.
+
+150
+00:07:32,940 --> 00:07:34,620
+Here, I extend this guy.
+
+151
+00:07:34,620 --> 00:07:36,886
+I extend this guy.
+
+152
+00:07:36,886 --> 00:07:39,630
+I extend this guy.
+
+153
+00:07:39,630 --> 00:07:42,090
+I extend this guy.
+
+154
+00:07:42,090 --> 00:07:43,860
+And extend this one out here.
+
+155
+00:07:43,860 --> 00:07:48,815
+
+
+156
+00:07:48,815 --> 00:07:53,042
+I'm going to add one
+more point over here--
+
+157
+00:07:53,042 --> 00:07:54,000
+a little more exciting.
+
+158
+00:07:54,000 --> 00:07:56,700
+
+
+159
+00:07:56,700 --> 00:07:58,430
+So this stops there.
+
+160
+00:07:58,430 --> 00:07:59,370
+This goes to there.
+
+161
+00:07:59,370 --> 00:08:00,786
+AUDIENCE: One
+more-- to the right.
+
+162
+00:08:00,786 --> 00:08:04,230
+ERIK DEMAINE: One
+more up here-- thanks.
+
+163
+00:08:04,230 --> 00:08:05,220
+OK.
+
+164
+00:08:05,220 --> 00:08:09,480
+So this is kind of decomposition
+into slabs or bricks
+
+165
+00:08:09,480 --> 00:08:10,330
+or something.
+
+166
+00:08:10,330 --> 00:08:11,220
+It looks good.
+
+167
+00:08:11,220 --> 00:08:15,510
+And so the idea is, over
+here, there's, at most, n
+
+168
+00:08:15,510 --> 00:08:18,600
+different rays that make
+it all the way to the left.
+
+169
+00:08:18,600 --> 00:08:21,210
+
+
+170
+00:08:21,210 --> 00:08:21,840
+Do a search.
+
+171
+00:08:21,840 --> 00:08:23,400
+That's your z search.
+
+172
+00:08:23,400 --> 00:08:28,140
+So that's this search
+for b3 in the z list.
+
+173
+00:08:28,140 --> 00:08:29,925
+So remember, our goal
+is to get to here.
+
+174
+00:08:29,925 --> 00:08:31,800
+So we search for that
+z-coordinate over here.
+
+175
+00:08:31,800 --> 00:08:34,080
+We say, OK, it falls here.
+
+176
+00:08:34,080 --> 00:08:36,039
+Then I enter this face.
+
+177
+00:08:36,039 --> 00:08:38,159
+I'd like to then
+navigate to this face,
+
+178
+00:08:38,159 --> 00:08:41,070
+say, OK, that's where I am now.
+
+179
+00:08:41,070 --> 00:08:44,700
+By crossing this edge, I know
+that this point is actually
+
+180
+00:08:44,700 --> 00:08:45,960
+in my answer.
+
+181
+00:08:45,960 --> 00:08:48,330
+And then I cross this edge,
+so I know that this point
+
+182
+00:08:48,330 --> 00:08:49,490
+is in my answer.
+
+183
+00:08:49,490 --> 00:08:52,800
+Then I cross this ray,
+so I know that this point
+
+184
+00:08:52,800 --> 00:08:53,530
+is in my answer.
+
+185
+00:08:53,530 --> 00:08:55,860
+Then I say, OK, I reached
+my desired y-coordinate.
+
+186
+00:08:55,860 --> 00:08:57,060
+Stop.
+
+187
+00:08:57,060 --> 00:09:01,650
+So if I can do each of these
+traversals in constant time,
+
+188
+00:09:01,650 --> 00:09:03,722
+I'd be all set.
+
+189
+00:09:03,722 --> 00:09:05,430
+So I do one search at
+the beginning, then
+
+190
+00:09:05,430 --> 00:09:06,874
+constant time per query.
+
+191
+00:09:06,874 --> 00:09:08,290
+We know how to
+solve this problem.
+
+192
+00:09:08,290 --> 00:09:11,610
+We can do it with range trees
+and log n time preparation.
+
+193
+00:09:11,610 --> 00:09:14,264
+But this is a particular
+way to solve it
+
+194
+00:09:14,264 --> 00:09:15,930
+that will work with
+fractional cascading
+
+195
+00:09:15,930 --> 00:09:18,540
+when we do many of them.
+
+196
+00:09:18,540 --> 00:09:19,560
+OK.
+
+197
+00:09:19,560 --> 00:09:21,450
+Cool.
+
+198
+00:09:21,450 --> 00:09:23,250
+Can I do this in constant time?
+
+199
+00:09:23,250 --> 00:09:27,320
+
+
+200
+00:09:27,320 --> 00:09:32,150
+Maybe not, because it's
+this sort of scenario.
+
+201
+00:09:32,150 --> 00:09:34,460
+If I draw a whole bunch
+of points like this,
+
+202
+00:09:34,460 --> 00:09:36,140
+they'll each have a segment.
+
+203
+00:09:36,140 --> 00:09:40,300
+And in general, this face
+will have large degree.
+
+204
+00:09:40,300 --> 00:09:45,650
+And so I need to sort of
+find my z-coordinate again,
+
+205
+00:09:45,650 --> 00:09:46,980
+somewhere in here.
+
+206
+00:09:46,980 --> 00:09:50,960
+It turns out, with, essentially,
+fractional cascading again,
+
+207
+00:09:50,960 --> 00:09:53,270
+you can avoid that.
+
+208
+00:09:53,270 --> 00:09:58,400
+If you have many segments
+here, just extend half of them.
+
+209
+00:09:58,400 --> 00:10:03,422
+So maybe I'll extend this
+one over and this one over.
+
+210
+00:10:03,422 --> 00:10:04,880
+It looks like
+fractional cascading.
+
+211
+00:10:04,880 --> 00:10:06,980
+I'm taking half of
+the elements here,
+
+212
+00:10:06,980 --> 00:10:09,200
+inserting them into the
+previous list, which
+
+213
+00:10:09,200 --> 00:10:11,390
+is the left side of the face.
+
+214
+00:10:11,390 --> 00:10:14,390
+If this now has too many, well,
+half of them get promoted.
+
+215
+00:10:14,390 --> 00:10:16,910
+But it decreases exponentially.
+
+216
+00:10:16,910 --> 00:10:19,430
+And so the total amount of
+extra edges I'm adding here
+
+217
+00:10:19,430 --> 00:10:21,560
+is only linear.
+
+218
+00:10:21,560 --> 00:10:24,790
+So linear space--
+
+219
+00:10:24,790 --> 00:10:26,540
+I'm not going to prove
+this formally here,
+
+220
+00:10:26,540 --> 00:10:29,030
+but it's the same idea
+as fractional cascading.
+
+221
+00:10:29,030 --> 00:10:32,690
+We just need it as
+a tool to get to 3D.
+
+222
+00:10:32,690 --> 00:10:35,270
+You can extend these
+things, and then every face
+
+223
+00:10:35,270 --> 00:10:36,340
+will have bounded degree.
+
+224
+00:10:36,340 --> 00:10:39,027
+And so you can just look at
+every single rightward edge
+
+225
+00:10:39,027 --> 00:10:40,610
+in constant time,
+and figure out which
+
+226
+00:10:40,610 --> 00:10:42,860
+one has your z-coordinate.
+
+227
+00:10:42,860 --> 00:10:43,820
+Follow that edge.
+
+228
+00:10:43,820 --> 00:10:46,520
+And so every time
+you're crossing a ray
+
+229
+00:10:46,520 --> 00:10:49,250
+and getting an output, you
+can pay only constant time
+
+230
+00:10:49,250 --> 00:10:50,840
+to get it.
+
+231
+00:10:50,840 --> 00:10:52,700
+Pretty cool.
+
+232
+00:10:52,700 --> 00:10:54,380
+That's the first step.
+
+233
+00:10:54,380 --> 00:10:55,323
+Question.
+
+234
+00:10:55,323 --> 00:10:57,541
+AUDIENCE: So when you say
+that a particular face has
+
+235
+00:10:57,541 --> 00:11:00,992
+too many crossings, what
+do you define too many?
+
+236
+00:11:00,992 --> 00:11:02,450
+ERIK DEMAINE: More
+than a constant.
+
+237
+00:11:02,450 --> 00:11:06,900
+In general, you just look
+at the right side of a face,
+
+238
+00:11:06,900 --> 00:11:09,132
+and just take half
+of those things
+
+239
+00:11:09,132 --> 00:11:10,340
+and propagate it to the left.
+
+240
+00:11:10,340 --> 00:11:12,560
+Just do that right
+to left in one pass.
+
+241
+00:11:12,560 --> 00:11:14,960
+I think you might also need
+to do it left to right,
+
+242
+00:11:14,960 --> 00:11:17,210
+if you want to have
+bounded leftward degree.
+
+243
+00:11:17,210 --> 00:11:20,510
+But I'm not sure
+that really matters.
+
+244
+00:11:20,510 --> 00:11:23,450
+I think you just do
+one pass right to left,
+
+245
+00:11:23,450 --> 00:11:25,672
+and half the guys
+keep getting promoted.
+
+246
+00:11:25,672 --> 00:11:28,130
+And it's the same thing, where
+you're promoting from the LI
+
+247
+00:11:28,130 --> 00:11:29,510
+primes, not from the LI.
+
+248
+00:11:29,510 --> 00:11:31,820
+So it's everybody who
+came from the right plus
+
+249
+00:11:31,820 --> 00:11:33,237
+whatever you originally had.
+
+250
+00:11:33,237 --> 00:11:34,820
+Half of them get
+promoted to the left,
+
+251
+00:11:34,820 --> 00:11:37,850
+but because it's geometrically
+decreasing, all is OK.
+
+252
+00:11:37,850 --> 00:11:41,420
+This is earlier than
+fractional cascading,
+
+253
+00:11:41,420 --> 00:11:44,300
+but I would guess it's what
+motivated them to then do
+
+254
+00:11:44,300 --> 00:11:49,020
+general fractional cascading.
+
+255
+00:11:49,020 --> 00:11:51,084
+Other questions?
+
+256
+00:11:51,084 --> 00:11:52,500
+I know this is a
+little bit vague.
+
+257
+00:11:52,500 --> 00:11:57,360
+But the more exciting stuff,
+to me, is the next three steps.
+
+258
+00:11:57,360 --> 00:11:59,910
+So let's move on to those. .
+
+259
+00:11:59,910 --> 00:12:04,310
+
+
+260
+00:12:04,310 --> 00:12:19,830
+So this is a tool for doing
+two dimensional quarter
+
+261
+00:12:19,830 --> 00:12:22,290
+plane searching.
+
+262
+00:12:22,290 --> 00:12:25,830
+The next thing we're going to
+do is make it three dimensional.
+
+263
+00:12:25,830 --> 00:12:28,210
+This is actually something
+we already know how to do.
+
+264
+00:12:28,210 --> 00:12:31,200
+And we're going to do it
+in exactly the same way we
+
+265
+00:12:31,200 --> 00:12:33,660
+knew how to before.
+
+266
+00:12:33,660 --> 00:12:36,750
+Suppose you have a
+three dimensional query,
+
+267
+00:12:36,750 --> 00:12:40,440
+and two of the intervals
+start at minus infinity,
+
+268
+00:12:40,440 --> 00:12:43,590
+but the new x-coordinate
+is a regular interval.
+
+269
+00:12:43,590 --> 00:12:46,810
+You can specify both endpoints.
+
+270
+00:12:46,810 --> 00:12:57,530
+I want to do this in
+log n searches plus k.
+
+271
+00:12:57,530 --> 00:13:00,990
+k is the size of the output.
+
+272
+00:13:00,990 --> 00:13:03,162
+How do I do this using one?
+
+273
+00:13:03,162 --> 00:13:05,760
+
+
+274
+00:13:05,760 --> 00:13:11,500
+Two words-- range tree.
+
+275
+00:13:11,500 --> 00:13:12,521
+Yep.
+
+276
+00:13:12,521 --> 00:13:13,020
+Easy.
+
+277
+00:13:13,020 --> 00:13:19,740
+Just do 1D range tree on x.
+
+278
+00:13:19,740 --> 00:13:28,560
+And then each node stores
+that data structure--
+
+279
+00:13:28,560 --> 00:13:33,360
+one-- on points in the subtree.
+
+280
+00:13:33,360 --> 00:13:39,110
+
+
+281
+00:13:39,110 --> 00:13:45,120
+And so just like before,
+you get log n subtrees
+
+282
+00:13:45,120 --> 00:13:46,560
+that represent your x interval.
+
+283
+00:13:46,560 --> 00:13:52,580
+
+
+284
+00:13:52,580 --> 00:13:55,910
+You look at the
+root of each one,
+
+285
+00:13:55,910 --> 00:13:57,890
+and it stores a
+one data structure.
+
+286
+00:13:57,890 --> 00:14:02,810
+You query each of
+them for b2 and b3
+
+287
+00:14:02,810 --> 00:14:06,170
+for that interval among
+the y- and z-coordinates.
+
+288
+00:14:06,170 --> 00:14:09,250
+And each of them costs
+a search plus order k.
+
+289
+00:14:09,250 --> 00:14:11,660
+The k's sum up to order k.
+
+290
+00:14:11,660 --> 00:14:14,060
+So we end up doing
+log n searches
+
+291
+00:14:14,060 --> 00:14:18,100
+of that type plus k time.
+
+292
+00:14:18,100 --> 00:14:20,247
+And we can now solve
+this kind of 3D query.
+
+293
+00:14:20,247 --> 00:14:21,080
+This is really easy.
+
+294
+00:14:21,080 --> 00:14:23,570
+This is what we did last class.
+
+295
+00:14:23,570 --> 00:14:26,210
+The cool thing, of course, is
+that, by doing log n searches,
+
+296
+00:14:26,210 --> 00:14:30,140
+it's always searching
+for the same thing-- b3--
+
+297
+00:14:30,140 --> 00:14:31,880
+in various c lists.
+
+298
+00:14:31,880 --> 00:14:34,910
+We know by fractional cascading
+this is actually log n time.
+
+299
+00:14:34,910 --> 00:14:40,330
+We're doing log n
+searches in k lists--
+
+300
+00:14:40,330 --> 00:14:42,430
+and slightly different
+k here, sorry.
+
+301
+00:14:42,430 --> 00:14:45,730
+
+
+302
+00:14:45,730 --> 00:14:47,200
+It's actually log n lists.
+
+303
+00:14:47,200 --> 00:14:49,750
+But we know from this
+bound, we're going
+
+304
+00:14:49,750 --> 00:14:50,961
+to get order log n plus k.
+
+305
+00:14:50,961 --> 00:14:52,960
+But I don't want to do
+fractional cascading yet,
+
+306
+00:14:52,960 --> 00:14:54,130
+because we're not done.
+
+307
+00:14:54,130 --> 00:14:57,771
+This is a sort of three
+dimensional orthogonal range
+
+308
+00:14:57,771 --> 00:14:58,270
+query.
+
+309
+00:14:58,270 --> 00:15:01,960
+But I want to put
+a2 here and a3 here.
+
+310
+00:15:01,960 --> 00:15:04,030
+We're going to do
+that step by step.
+
+311
+00:15:04,030 --> 00:15:06,724
+First step is a2.
+
+312
+00:15:06,724 --> 00:15:08,890
+We're going to do it in
+exactly the same way, twice.
+
+313
+00:15:08,890 --> 00:15:27,630
+
+
+314
+00:15:27,630 --> 00:15:34,620
+Again, I want to do it
+in log n searches plus k.
+
+315
+00:15:34,620 --> 00:15:37,890
+It's the same time bound
+I want to put into a2.
+
+316
+00:15:37,890 --> 00:15:41,650
+The cost will be a
+log n factor in space.
+
+317
+00:15:41,650 --> 00:15:44,190
+And it's a cool transformation.
+
+318
+00:15:44,190 --> 00:15:45,510
+It's a general transformation.
+
+319
+00:15:45,510 --> 00:15:49,330
+Whenever you have a data
+structure has a minus infinity,
+
+320
+00:15:49,330 --> 00:15:55,260
+you can turn it into a
+lower bound, magically--
+
+321
+00:15:55,260 --> 00:15:58,030
+almost the same
+way as we did here,
+
+322
+00:15:58,030 --> 00:16:00,450
+except we're not going to
+lose a log factor in time--
+
+323
+00:16:00,450 --> 00:16:02,730
+only in space.
+
+324
+00:16:02,730 --> 00:16:08,530
+So I'm going to say it's
+kind of like a range
+
+325
+00:16:08,530 --> 00:16:12,000
+tree on the y-coordinate.
+y-coordinate
+
+326
+00:16:12,000 --> 00:16:13,690
+is the one that
+we want to extend.
+
+327
+00:16:13,690 --> 00:16:17,250
+
+
+328
+00:16:17,250 --> 00:16:25,140
+And you may remember there was
+this brief question last time.
+
+329
+00:16:25,140 --> 00:16:28,519
+In a 1D range tree, what
+key does a node store?
+
+330
+00:16:28,519 --> 00:16:30,060
+It just has to store
+something that's
+
+331
+00:16:30,060 --> 00:16:32,070
+in between what's
+in the left subtree
+
+332
+00:16:32,070 --> 00:16:33,820
+and what's in the right subtree.
+
+333
+00:16:33,820 --> 00:16:39,210
+So I proposed you could
+store max of left subtree.
+
+334
+00:16:39,210 --> 00:16:41,770
+
+
+335
+00:16:41,770 --> 00:16:43,145
+And that's enough
+to do a search.
+
+336
+00:16:43,145 --> 00:16:45,436
+Then you know whether you
+should go in the left subtree
+
+337
+00:16:45,436 --> 00:16:46,390
+or the right subtree.
+
+338
+00:16:46,390 --> 00:16:47,817
+Just compare with that key.
+
+339
+00:16:47,817 --> 00:16:49,900
+So same as before-- we're
+going to store that key.
+
+340
+00:16:49,900 --> 00:16:51,660
+Except now, I'm
+making it explicit,
+
+341
+00:16:51,660 --> 00:16:55,760
+because we really need
+to know what that key is.
+
+342
+00:16:55,760 --> 00:17:03,730
+A node v will also
+store two of these.
+
+343
+00:17:03,730 --> 00:17:09,599
+So it's going to store the two
+data structure on the points
+
+344
+00:17:09,599 --> 00:17:10,724
+in the right subtree--
+
+345
+00:17:10,724 --> 00:17:13,859
+
+
+346
+00:17:13,859 --> 00:17:16,740
+not the entire subtree,
+just the right subtree.
+
+347
+00:17:16,740 --> 00:17:25,920
+And it's going to store a
+y-inverted two structure
+
+348
+00:17:25,920 --> 00:17:32,860
+on points in the left subtree.
+
+349
+00:17:32,860 --> 00:17:36,840
+So this is the new part.
+
+350
+00:17:36,840 --> 00:17:39,480
+And what does y-inverted mean?
+
+351
+00:17:39,480 --> 00:17:55,130
+It means that you can
+search for boxes like this.
+
+352
+00:17:55,130 --> 00:17:59,700
+So regularly, a two structure
+is sort of left-centered,
+
+353
+00:17:59,700 --> 00:18:01,510
+and the left end
+point is undefined,
+
+354
+00:18:01,510 --> 00:18:02,980
+and it goes up to b3.
+
+355
+00:18:02,980 --> 00:18:05,230
+Now, I want something
+that's right-centered.
+
+356
+00:18:05,230 --> 00:18:07,240
+It goes up to infinity
+on the right side.
+
+357
+00:18:07,240 --> 00:18:09,640
+But you can start
+at an arbitrary a2.
+
+358
+00:18:09,640 --> 00:18:11,734
+How do I make such a
+data structure do exactly
+
+359
+00:18:11,734 --> 00:18:13,900
+the same thing, but with
+this inverted, which means,
+
+360
+00:18:13,900 --> 00:18:17,065
+do exactly this, but
+with this inverted?
+
+361
+00:18:17,065 --> 00:18:20,260
+
+
+362
+00:18:20,260 --> 00:18:22,585
+Easy to do-- just twice
+as many data structures.
+
+363
+00:18:22,585 --> 00:18:25,480
+So you can think of that
+as one prime and two prime.
+
+364
+00:18:25,480 --> 00:18:30,330
+I'll call this two
+prime, explicitly.
+
+365
+00:18:30,330 --> 00:18:33,260
+OK, now, the big question
+is, why is this enough?
+
+366
+00:18:33,260 --> 00:18:34,610
+So let's do that.
+
+367
+00:18:34,610 --> 00:18:42,010
+
+
+368
+00:18:42,010 --> 00:18:46,670
+How do I do a query in
+data structure three?
+
+369
+00:18:46,670 --> 00:18:49,920
+
+
+370
+00:18:49,920 --> 00:18:52,590
+The basic idea is simple.
+
+371
+00:18:52,590 --> 00:18:54,410
+We're going to
+walk down the tree.
+
+372
+00:18:54,410 --> 00:18:56,500
+Now, before we
+walk down the tree,
+
+373
+00:18:56,500 --> 00:18:59,320
+and the interval is represented
+by log n different subtrees--
+
+374
+00:18:59,320 --> 00:19:01,250
+we can't afford that anymore.
+
+375
+00:19:01,250 --> 00:19:03,670
+We can really only afford
+a constant number of calls
+
+376
+00:19:03,670 --> 00:19:05,500
+to this data structure,
+if we're not going
+
+377
+00:19:05,500 --> 00:19:07,810
+to get an extra log blowup.
+
+378
+00:19:07,810 --> 00:19:10,559
+So I don't want to walk and
+then fork and then visit
+
+379
+00:19:10,559 --> 00:19:11,350
+all these subtrees.
+
+380
+00:19:11,350 --> 00:19:12,947
+I could do that.
+
+381
+00:19:12,947 --> 00:19:14,530
+But it turns out,
+with this structure,
+
+382
+00:19:14,530 --> 00:19:16,990
+I can be a little
+bit more efficient.
+
+383
+00:19:16,990 --> 00:19:21,955
+Because, essentially, I want
+to do an interval like this.
+
+384
+00:19:21,955 --> 00:19:25,060
+
+
+385
+00:19:25,060 --> 00:19:26,920
+The queries I'm
+allowed is, I can
+
+386
+00:19:26,920 --> 00:19:29,860
+do a query that's
+infinite to the left,
+
+387
+00:19:29,860 --> 00:19:32,447
+and I can do a query that's
+infinite to the right.
+
+388
+00:19:32,447 --> 00:19:34,530
+So the intersection of
+those would be what I want.
+
+389
+00:19:34,530 --> 00:19:36,390
+I can't really
+compute intersection.
+
+390
+00:19:36,390 --> 00:19:39,452
+So it take too much
+time to list those.
+
+391
+00:19:39,452 --> 00:19:41,410
+But if, somehow, I could
+get this left endpoint
+
+392
+00:19:41,410 --> 00:19:43,690
+in another way, using
+the tree, then I
+
+393
+00:19:43,690 --> 00:19:46,065
+can do a leftward
+infinity query.
+
+394
+00:19:46,065 --> 00:19:47,440
+So that's what
+we're going to do.
+
+395
+00:19:47,440 --> 00:19:50,590
+
+
+396
+00:19:50,590 --> 00:19:52,720
+And once I say
+walk down the tree,
+
+397
+00:19:52,720 --> 00:19:55,360
+it's pretty clear
+what you have to do.
+
+398
+00:19:55,360 --> 00:20:04,870
+When you visit a node, if the
+key of the node is less than--
+
+399
+00:20:04,870 --> 00:20:07,930
+what are you searching
+for-- a2, b2--
+
+400
+00:20:07,930 --> 00:20:10,870
+so a2 is less than b2.
+
+401
+00:20:10,870 --> 00:20:13,610
+And if the key of the
+node is to the left,
+
+402
+00:20:13,610 --> 00:20:17,810
+that means that the stuff we're
+interested to is to the right.
+
+403
+00:20:17,810 --> 00:20:18,790
+So walk right.
+
+404
+00:20:18,790 --> 00:20:23,710
+
+
+405
+00:20:23,710 --> 00:20:31,240
+If the key of the node is
+greater than the interval,
+
+406
+00:20:31,240 --> 00:20:33,820
+then walk left.
+
+407
+00:20:33,820 --> 00:20:35,950
+That's sort of the easy case.
+
+408
+00:20:35,950 --> 00:20:37,960
+And then the interesting
+case is this fork.
+
+409
+00:20:37,960 --> 00:20:40,270
+Before, we had to do a
+lot of work at the fork.
+
+410
+00:20:40,270 --> 00:20:44,500
+Now, I claim we only need to
+do constant work at the fork.
+
+411
+00:20:44,500 --> 00:20:49,720
+So if the key falls
+between a2 and b2,
+
+412
+00:20:49,720 --> 00:20:53,410
+so our interval is stabbed
+by the key of the node,
+
+413
+00:20:53,410 --> 00:21:00,430
+then I want to query
+the two data structure--
+
+414
+00:21:00,430 --> 00:21:02,590
+two is the right number-- yeah--
+
+415
+00:21:02,590 --> 00:21:05,450
+and I want to query the
+two prime data structure.
+
+416
+00:21:05,450 --> 00:21:07,890
+So I'm going to do two
+calls to data structure two.
+
+417
+00:21:07,890 --> 00:21:11,530
+And so I only get a
+constant factor blowup.
+
+418
+00:21:11,530 --> 00:21:13,670
+And what could I
+possibly search for?
+
+419
+00:21:13,670 --> 00:21:20,780
+Well, two-- I'm able to do--
+
+420
+00:21:20,780 --> 00:21:29,920
+what is it-- a1, b1,
+minus infinity b2,
+
+421
+00:21:29,920 --> 00:21:31,780
+and minus infinity b3.
+
+422
+00:21:31,780 --> 00:21:34,720
+We're not fixing the
+z-coordinate yet.
+
+423
+00:21:34,720 --> 00:21:38,560
+And with two prime, I can do
+the left endpoint bounded.
+
+424
+00:21:38,560 --> 00:21:40,720
+
+
+425
+00:21:40,720 --> 00:21:42,970
+Once I've set things up,
+this is, like, the only thing
+
+426
+00:21:42,970 --> 00:21:44,569
+you could possibly do.
+
+427
+00:21:44,569 --> 00:21:46,360
+But I claim it's actually
+the right answer.
+
+428
+00:21:46,360 --> 00:21:52,210
+
+
+429
+00:21:52,210 --> 00:21:53,590
+OK, what does this mean?
+
+430
+00:21:53,590 --> 00:21:59,350
+Two prime is-- we're doing
+rightward infinity searches
+
+431
+00:21:59,350 --> 00:22:00,650
+in the left subtree.
+
+432
+00:22:00,650 --> 00:22:04,067
+So here's v. Here is
+the left subtree of v,
+
+433
+00:22:04,067 --> 00:22:06,400
+and the right subtree of v.
+So this is a bunch of points
+
+434
+00:22:06,400 --> 00:22:08,740
+down here, a bunch
+of points down here.
+
+435
+00:22:08,740 --> 00:22:11,780
+We know that the interval
+looks something like this.
+
+436
+00:22:11,780 --> 00:22:15,160
+It straddles this node.
+
+437
+00:22:15,160 --> 00:22:17,840
+That's what this means.
+
+438
+00:22:17,840 --> 00:22:21,724
+And so what we'd really like
+is this stuff plus this stuff.
+
+439
+00:22:21,724 --> 00:22:22,390
+That looks good.
+
+440
+00:22:22,390 --> 00:22:24,580
+Because this goes to
+infinity on the right.
+
+441
+00:22:24,580 --> 00:22:26,140
+That's the two prime search.
+
+442
+00:22:26,140 --> 00:22:28,074
+And this goes to
+infinity on the left.
+
+443
+00:22:28,074 --> 00:22:28,990
+That's the two search.
+
+444
+00:22:28,990 --> 00:22:30,700
+As long as you restrict
+to this subtree, which
+
+445
+00:22:30,700 --> 00:22:32,866
+is what we've always been
+doing, and, in particular,
+
+446
+00:22:32,866 --> 00:22:36,160
+here, too, it's
+only on the points
+
+447
+00:22:36,160 --> 00:22:37,480
+that are in the right subtree.
+
+448
+00:22:37,480 --> 00:22:40,192
+Two prime is only on the
+points in the left subtree.
+
+449
+00:22:40,192 --> 00:22:40,900
+And so that's it.
+
+450
+00:22:40,900 --> 00:22:42,220
+We're golden.
+
+451
+00:22:42,220 --> 00:22:45,430
+Actually, we only need to do
+a rightward infinity search,
+
+452
+00:22:45,430 --> 00:22:47,860
+and a leftward infinity search.
+
+453
+00:22:47,860 --> 00:22:53,570
+So that is data structure three.
+
+454
+00:22:53,570 --> 00:22:54,450
+And it's really easy.
+
+455
+00:22:54,450 --> 00:22:57,105
+Once you have the ability
+to do a 3D search--
+
+456
+00:22:57,105 --> 00:23:02,500
+
+
+457
+00:23:02,500 --> 00:23:05,370
+even if this one was
+minus infinity b1--
+
+458
+00:23:05,370 --> 00:23:07,200
+if we just could do--
+
+459
+00:23:07,200 --> 00:23:08,760
+would you call that-- octants--
+
+460
+00:23:08,760 --> 00:23:12,180
+octant search in 3D,
+then we could just
+
+461
+00:23:12,180 --> 00:23:14,280
+sit there and apply
+this transformation,
+
+462
+00:23:14,280 --> 00:23:18,690
+and turn each one of them into
+double-sided, with a log n
+
+463
+00:23:18,690 --> 00:23:22,500
+penalty each time in space,
+but no extra query time.
+
+464
+00:23:22,500 --> 00:23:27,210
+We do a single log n
+traversal of this tree.
+
+465
+00:23:27,210 --> 00:23:29,520
+So this part costs log n.
+
+466
+00:23:29,520 --> 00:23:33,150
+
+
+467
+00:23:33,150 --> 00:23:35,935
+And then we reduce to
+the previous problem--
+
+468
+00:23:35,935 --> 00:23:38,787
+it's constant number of calls.
+
+469
+00:23:38,787 --> 00:23:40,620
+So I could have written
+minus infinity here.
+
+470
+00:23:40,620 --> 00:23:42,270
+But I pay an extra
+log factor in space.
+
+471
+00:23:42,270 --> 00:23:44,960
+So this one we get for
+free, because we're
+
+472
+00:23:44,960 --> 00:23:46,650
+using range trees.
+
+473
+00:23:46,650 --> 00:23:48,450
+We do one transformation.
+
+474
+00:23:48,450 --> 00:23:49,350
+We get this one.
+
+475
+00:23:49,350 --> 00:23:51,558
+And now we're basically
+done, because we just do this
+
+476
+00:23:51,558 --> 00:23:55,920
+again on the
+z-coordinate, and we
+
+477
+00:23:55,920 --> 00:24:03,860
+get a1, b1, a2, b2,
+a3, b3, as desired.
+
+478
+00:24:03,860 --> 00:24:19,210
+For our queries, just
+ditto on z, and using three
+
+479
+00:24:19,210 --> 00:24:22,050
+in place of two.
+
+480
+00:24:22,050 --> 00:24:23,987
+So we want to add in this a3.
+
+481
+00:24:23,987 --> 00:24:25,320
+We build a three data structure.
+
+482
+00:24:25,320 --> 00:24:26,820
+We build three prime
+data structures
+
+483
+00:24:26,820 --> 00:24:28,400
+in exactly the same way.
+
+484
+00:24:28,400 --> 00:24:29,850
+Three primes are on the left.
+
+485
+00:24:29,850 --> 00:24:32,520
+Threes are on the right.
+
+486
+00:24:32,520 --> 00:24:37,200
+Every node in this
+range tree on z.
+
+487
+00:24:37,200 --> 00:24:39,302
+And we do a log n
+search at the beginning.
+
+488
+00:24:39,302 --> 00:24:41,760
+Then we do a constant of calls
+to the data structure three.
+
+489
+00:24:41,760 --> 00:24:43,230
+Data structure three
+does a log n search
+
+490
+00:24:43,230 --> 00:24:44,646
+at the beginning--
+constant number
+
+491
+00:24:44,646 --> 00:24:46,260
+of calls to data structure two.
+
+492
+00:24:46,260 --> 00:24:49,650
+Data structure two does our
+usual range tree thing--
+
+493
+00:24:49,650 --> 00:24:53,205
+identifies log n different
+calls to data structure one.
+
+494
+00:24:53,205 --> 00:24:55,350
+Data structure one is
+a search and a list,
+
+495
+00:24:55,350 --> 00:24:59,040
+plus every time I walk to the
+right and spend constant time,
+
+496
+00:24:59,040 --> 00:25:02,190
+that is an element of my output.
+
+497
+00:25:02,190 --> 00:25:04,500
+How much time has
+this taken total?
+
+498
+00:25:04,500 --> 00:25:07,700
+Normally, there's log n
+of these, plus order of k.
+
+499
+00:25:07,700 --> 00:25:09,630
+Normally, that would be
+log squared n plus k.
+
+500
+00:25:09,630 --> 00:25:11,760
+But with fractional cascading--
+
+501
+00:25:11,760 --> 00:25:14,520
+we have to check this is valid
+within fractional cascading.
+
+502
+00:25:14,520 --> 00:25:16,830
+We've got a graph of
+data structures here,
+
+503
+00:25:16,830 --> 00:25:19,290
+but each node has
+only constant degree.
+
+504
+00:25:19,290 --> 00:25:21,191
+You can come from your parent.
+
+505
+00:25:21,191 --> 00:25:22,440
+You can go to your left child.
+
+506
+00:25:22,440 --> 00:25:24,210
+You can go to your right child.
+
+507
+00:25:24,210 --> 00:25:28,650
+And you can go to previous
+dimension data structure,
+
+508
+00:25:28,650 --> 00:25:30,600
+or the inverted version of it.
+
+509
+00:25:30,600 --> 00:25:32,189
+So the degree five--
+
+510
+00:25:32,189 --> 00:25:33,480
+if you count in and out degree.
+
+511
+00:25:33,480 --> 00:25:36,030
+
+
+512
+00:25:36,030 --> 00:25:37,980
+And so fractional
+cascading applies.
+
+513
+00:25:37,980 --> 00:25:41,400
+We're always searching
+for the same thing--
+
+514
+00:25:41,400 --> 00:25:44,760
+not quite, actually-- a
+little bit of a cheat.
+
+515
+00:25:44,760 --> 00:25:47,370
+Because of this
+inversion thing, we'll
+
+516
+00:25:47,370 --> 00:25:51,390
+sometimes be searching
+for b3 in the z list,
+
+517
+00:25:51,390 --> 00:25:54,180
+but we'll also sometimes be
+searching for a3 in the z list.
+
+518
+00:25:54,180 --> 00:25:56,652
+But hey-- just a factor of two.
+
+519
+00:25:56,652 --> 00:25:58,860
+So we have two fractional
+cascading data structures--
+
+520
+00:25:58,860 --> 00:26:02,105
+one for searching for b3,
+one for searching for a3.
+
+521
+00:26:02,105 --> 00:26:04,470
+It's the inverted
+versions of one,
+
+522
+00:26:04,470 --> 00:26:06,580
+and the uninverted
+versions of one--
+
+523
+00:26:06,580 --> 00:26:08,400
+z-inverted.
+
+524
+00:26:08,400 --> 00:26:10,050
+But that's fine.
+
+525
+00:26:10,050 --> 00:26:14,670
+And in the end, we get log n to
+do the first search, and then
+
+526
+00:26:14,670 --> 00:26:16,260
+plus the number of searches.
+
+527
+00:26:16,260 --> 00:26:19,870
+Number of searches is
+log n plus k, where
+
+528
+00:26:19,870 --> 00:26:21,520
+k is the size of the output.
+
+529
+00:26:21,520 --> 00:26:34,000
+So total time is log n plus k.
+
+530
+00:26:34,000 --> 00:26:36,020
+This is pretty amazing.
+
+531
+00:26:36,020 --> 00:26:41,170
+We can do 3D orthogonal range
+queries, still in log n.
+
+532
+00:26:41,170 --> 00:26:43,690
+And if you go to higher
+dimensions, the best we know,
+
+533
+00:26:43,690 --> 00:26:45,820
+basically, is to
+use range trees.
+
+534
+00:26:45,820 --> 00:26:53,560
+And so you get, in general, log
+to the d minus two n plus k.
+
+535
+00:26:53,560 --> 00:26:55,780
+So last class, we could do one.
+
+536
+00:26:55,780 --> 00:26:57,430
+Now, we improved it by one more.
+
+537
+00:26:57,430 --> 00:27:00,430
+
+
+538
+00:27:00,430 --> 00:27:01,430
+Questions?
+
+539
+00:27:01,430 --> 00:27:05,384
+
+
+540
+00:27:05,384 --> 00:27:07,050
+AUDIENCE: Yeah, I
+have a quick question.
+
+541
+00:27:07,050 --> 00:27:08,020
+[INAUDIBLE] question.
+
+542
+00:27:08,020 --> 00:27:11,420
+
+
+543
+00:27:11,420 --> 00:27:18,160
+So we do three, and
+then we do four.
+
+544
+00:27:18,160 --> 00:27:21,590
+And it's not hard to imagine
+that same [INAUDIBLE], when
+
+545
+00:27:21,590 --> 00:27:24,435
+you might try to do the same
+argument for step three, step
+
+546
+00:27:24,435 --> 00:27:25,410
+four, step five.
+
+547
+00:27:25,410 --> 00:27:28,840
+ERIK DEMAINE: Why can't we keep
+doing this for all dimensions?
+
+548
+00:27:28,840 --> 00:27:31,770
+So what three is,
+and also four, is
+
+549
+00:27:31,770 --> 00:27:33,270
+using the same
+transformation, which
+
+550
+00:27:33,270 --> 00:27:37,300
+is, if I have a minus
+infinity something interval,
+
+551
+00:27:37,300 --> 00:27:40,410
+I can transform it into
+an a2, b2 interval.
+
+552
+00:27:40,410 --> 00:27:43,110
+So I can make a one-sided
+interval into two-sided.
+
+553
+00:27:43,110 --> 00:27:46,020
+The trouble is actually
+getting the one-sided interval.
+
+554
+00:27:46,020 --> 00:27:49,800
+So we started, in one
+and two, just getting up
+
+555
+00:27:49,800 --> 00:27:51,300
+to three dimensions.
+
+556
+00:27:51,300 --> 00:27:53,004
+And that's where
+things are hard.
+
+557
+00:27:53,004 --> 00:27:54,420
+So fine, in two
+dimensions, we can
+
+558
+00:27:54,420 --> 00:27:55,628
+do all sorts of fancy tricks.
+
+559
+00:27:55,628 --> 00:27:57,390
+We saw one way to
+do it last time.
+
+560
+00:27:57,390 --> 00:27:59,450
+This is a particularly
+cute way to do it
+
+561
+00:27:59,450 --> 00:28:01,650
+that lets you
+fractionally cascade.
+
+562
+00:28:01,650 --> 00:28:03,357
+We could add a dimension.
+
+563
+00:28:03,357 --> 00:28:05,190
+To add a dimension, we
+just use range trees.
+
+564
+00:28:05,190 --> 00:28:06,540
+This is kind of pathetic.
+
+565
+00:28:06,540 --> 00:28:09,750
+Every time we do this, we're
+going to pay a log n factor.
+
+566
+00:28:09,750 --> 00:28:13,740
+So we could afford to do
+it once and get to 3D.
+
+567
+00:28:13,740 --> 00:28:15,480
+We paid a log n
+factor here, but we
+
+568
+00:28:15,480 --> 00:28:17,310
+were lucky fractional
+cascading will remove
+
+569
+00:28:17,310 --> 00:28:19,362
+one log factor, but only one.
+
+570
+00:28:19,362 --> 00:28:20,820
+If we had to go to
+four dimensions,
+
+571
+00:28:20,820 --> 00:28:23,580
+we'd have to use another
+level of range trees.
+
+572
+00:28:23,580 --> 00:28:26,950
+And then we'd get a
+log squared searches.
+
+573
+00:28:26,950 --> 00:28:31,040
+And then we have to pay
+unit cost for every search.
+
+574
+00:28:31,040 --> 00:28:32,916
+So we'll get log squared
+for four dimensions.
+
+575
+00:28:32,916 --> 00:28:34,706
+So it's just getting
+up to the right number
+
+576
+00:28:34,706 --> 00:28:36,120
+of dimensions that's hard.
+
+577
+00:28:36,120 --> 00:28:38,490
+What you're seeing here is
+that one-sided intervals
+
+578
+00:28:38,490 --> 00:28:40,691
+are just the same as
+two-sided intervals,
+
+579
+00:28:40,691 --> 00:28:41,940
+if you don't mind extra space.
+
+580
+00:28:41,940 --> 00:28:49,830
+The space here is, I think,
+log cubed n log cubed n.
+
+581
+00:28:49,830 --> 00:28:52,680
+
+
+582
+00:28:52,680 --> 00:28:56,110
+Data structure one is linear
+space, but every other level,
+
+583
+00:28:56,110 --> 00:28:58,410
+we lost a log factor.
+
+584
+00:28:58,410 --> 00:29:00,840
+So one of those was to get up
+a dimension by range trees.
+
+585
+00:29:00,840 --> 00:29:03,450
+The other two were to convert
+the one-sided intervals
+
+586
+00:29:03,450 --> 00:29:05,100
+into two-sided intervals.
+
+587
+00:29:05,100 --> 00:29:06,090
+And that generalizes.
+
+588
+00:29:06,090 --> 00:29:08,160
+You could do that as
+many times as you want.
+
+589
+00:29:08,160 --> 00:29:11,619
+The hard part is just getting
+the right number of intervals
+
+590
+00:29:11,619 --> 00:29:12,410
+in the first place.
+
+591
+00:29:12,410 --> 00:29:14,830
+And that's where we
+pay log per dimension.
+
+592
+00:29:14,830 --> 00:29:18,720
+So kind of annoying you can't do
+log n for any dimension, but--
+
+593
+00:29:18,720 --> 00:29:20,374
+pretty sure that's impossible.
+
+594
+00:29:20,374 --> 00:29:24,216
+
+
+595
+00:29:24,216 --> 00:29:26,090
+There are models under
+which it's impossible,
+
+596
+00:29:26,090 --> 00:29:28,010
+but we're not going
+to get into that.
+
+597
+00:29:28,010 --> 00:29:28,696
+Yeah?
+
+598
+00:29:28,696 --> 00:29:31,552
+AUDIENCE: So when our
+query is log n plus k,
+
+599
+00:29:31,552 --> 00:29:34,408
+k is actually the
+number of points
+
+600
+00:29:34,408 --> 00:29:37,399
+that are coming back, because--
+
+601
+00:29:37,399 --> 00:29:38,190
+ERIK DEMAINE: Yeah.
+
+602
+00:29:38,190 --> 00:29:39,710
+Good question.
+
+603
+00:29:39,710 --> 00:29:41,700
+Here, k has to be--
+
+604
+00:29:41,700 --> 00:29:44,940
+this is for what we
+call range reporting,
+
+605
+00:29:44,940 --> 00:29:47,040
+where you really want to
+list everybody in there.
+
+606
+00:29:47,040 --> 00:29:49,560
+
+
+607
+00:29:49,560 --> 00:29:53,520
+And if we wanted to do range
+counting queries, which just
+
+608
+00:29:53,520 --> 00:29:57,090
+give me the number of
+elements that match,
+
+609
+00:29:57,090 --> 00:29:59,310
+I don't think this will work.
+
+610
+00:29:59,310 --> 00:30:03,240
+In particular, our seed
+data structure up here
+
+611
+00:30:03,240 --> 00:30:04,802
+had to pay for everything.
+
+612
+00:30:04,802 --> 00:30:06,510
+It doesn't know how
+many times it's going
+
+613
+00:30:06,510 --> 00:30:07,718
+to have to walk to the right.
+
+614
+00:30:07,718 --> 00:30:09,360
+It's got to actually do it.
+
+615
+00:30:09,360 --> 00:30:11,979
+So range counting-- not so much.
+
+616
+00:30:11,979 --> 00:30:13,770
+Our previous data
+structures could do range
+
+617
+00:30:13,770 --> 00:30:18,680
+counting, without the
+plus k, just paying log
+
+618
+00:30:18,680 --> 00:30:20,550
+to the d minus one.
+
+619
+00:30:20,550 --> 00:30:22,320
+But this is just
+for range reporting.
+
+620
+00:30:22,320 --> 00:30:24,810
+Good question.
+
+621
+00:30:24,810 --> 00:30:27,939
+I don't think anyone knows how
+to do range counting faster.
+
+622
+00:30:27,939 --> 00:30:29,397
+AUDIENCE: And the
+reason we're only
+
+623
+00:30:29,397 --> 00:30:32,945
+hitting points we know about
+is because the one data
+
+624
+00:30:32,945 --> 00:30:35,600
+structure is on the bottom,
+so we never actually--
+
+625
+00:30:35,600 --> 00:30:36,433
+ERIK DEMAINE: Right.
+
+626
+00:30:36,433 --> 00:30:40,430
+So you need to check, why
+is it only order k, where
+
+627
+00:30:40,430 --> 00:30:42,230
+k is the actual output size?
+
+628
+00:30:42,230 --> 00:30:44,780
+Because by the time we get
+down to the one data structural
+
+629
+00:30:44,780 --> 00:30:48,110
+level, we're guaranteed
+that x already matches.
+
+630
+00:30:48,110 --> 00:30:51,740
+It's already in our interval
+a1, b1 by the range tree.
+
+631
+00:30:51,740 --> 00:30:56,720
+And we're guaranteed that
+these two open intervals--
+
+632
+00:30:56,720 --> 00:30:59,510
+the minus infinity
+actually is a2 here,
+
+633
+00:30:59,510 --> 00:31:02,879
+and it actually is a3
+here, or, actually,
+
+634
+00:31:02,879 --> 00:31:03,920
+something bigger than it.
+
+635
+00:31:03,920 --> 00:31:07,407
+So we're guaranteed whatever
+this thing outputs is a result.
+
+636
+00:31:07,407 --> 00:31:09,240
+And we're never doing
+overlapping intervals.
+
+637
+00:31:09,240 --> 00:31:11,161
+So we never double charge.
+
+638
+00:31:11,161 --> 00:31:11,660
+Yeah.
+
+639
+00:31:11,660 --> 00:31:13,090
+You do need to check that.
+
+640
+00:31:13,090 --> 00:31:18,770
+There's a lot of pointers to
+follow here, but it works.
+
+641
+00:31:18,770 --> 00:31:19,270
+All right.
+
+642
+00:31:19,270 --> 00:31:20,610
+You look convinced.
+
+643
+00:31:20,610 --> 00:31:24,854
+Let's move on to
+kinetic data structures.
+
+644
+00:31:24,854 --> 00:31:53,899
+
+
+645
+00:31:53,899 --> 00:31:55,440
+The idea with kinetic
+data structures
+
+646
+00:31:55,440 --> 00:31:58,170
+is, you have moving data.
+
+647
+00:31:58,170 --> 00:31:59,460
+Deal with it.
+
+648
+00:31:59,460 --> 00:32:02,040
+So normally, we're
+thinking of data that--
+
+649
+00:32:02,040 --> 00:32:03,960
+at best, it's
+dynamic data, meaning
+
+650
+00:32:03,960 --> 00:32:06,360
+we can delete something
+and then reinsert it.
+
+651
+00:32:06,360 --> 00:32:09,450
+But what if everything
+is constantly changing?
+
+652
+00:32:09,450 --> 00:32:12,120
+So normally, OK, I've got some
+points in my data structure.
+
+653
+00:32:12,120 --> 00:32:15,780
+But now, what if they
+also have velocities?
+
+654
+00:32:15,780 --> 00:32:19,020
+And maybe some guy's just
+sitting there stationary,
+
+655
+00:32:19,020 --> 00:32:21,480
+but some of them are
+moving relative to it.
+
+656
+00:32:21,480 --> 00:32:24,414
+And my operations-- this is
+kind of like time travel,
+
+657
+00:32:24,414 --> 00:32:25,830
+but now we're going
+to time travel
+
+658
+00:32:25,830 --> 00:32:28,770
+into the future, which
+we do all the time.
+
+659
+00:32:28,770 --> 00:32:34,290
+But we'd like to do it
+really quickly, and say, OK,
+
+660
+00:32:34,290 --> 00:32:37,350
+advanced time by five units.
+
+661
+00:32:37,350 --> 00:32:41,880
+And now, in that frame, do
+an orthogonal range query
+
+662
+00:32:41,880 --> 00:32:42,750
+or something.
+
+663
+00:32:42,750 --> 00:32:44,160
+Do some kind of query.
+
+664
+00:32:44,160 --> 00:32:47,700
+We're always going to be
+doing queries in the present.
+
+665
+00:32:47,700 --> 00:32:50,629
+So this is not
+fancy time travel.
+
+666
+00:32:50,629 --> 00:32:52,170
+This is regular,
+forward time travel.
+
+667
+00:32:52,170 --> 00:32:56,070
+We just want to quickly say,
+jump forward 10 time units,
+
+668
+00:32:56,070 --> 00:32:59,220
+do some queries, jump forward
+some other time units.
+
+669
+00:32:59,220 --> 00:33:01,440
+There's actually another
+operation, which is, ah,
+
+670
+00:33:01,440 --> 00:33:03,481
+this point is no longer
+moving in that direction.
+
+671
+00:33:03,481 --> 00:33:05,320
+Now, it's moving
+in this direction.
+
+672
+00:33:05,320 --> 00:33:18,780
+So the operations are,
+advance to time t--
+
+673
+00:33:18,780 --> 00:33:22,650
+so this is like setting
+now equal to t--
+
+674
+00:33:22,650 --> 00:33:32,574
+and change a point x to have
+some new f of t trajectory.
+
+675
+00:33:32,574 --> 00:33:35,710
+AUDIENCE: I thought it was
+supposed to be arbitrary.
+
+676
+00:33:35,710 --> 00:33:39,800
+ERIK DEMAINE: Well, arbitrary
+trajectory is not-- not quite.
+
+677
+00:33:39,800 --> 00:33:42,060
+I'm going to restrict what
+those trajectories are.
+
+678
+00:33:42,060 --> 00:33:44,970
+But that is the
+remaining question.
+
+679
+00:33:44,970 --> 00:33:46,560
+What kind of f of
+t's do we allow?
+
+680
+00:33:46,560 --> 00:33:50,420
+
+
+681
+00:33:50,420 --> 00:33:53,780
+I'm drawing the picture in
+d dimensions, let's say.
+
+682
+00:33:53,780 --> 00:33:56,540
+And most of the work in
+kinetic structures in 2D--
+
+683
+00:33:56,540 --> 00:33:58,460
+a little bit in 3D--
+
+684
+00:33:58,460 --> 00:34:00,500
+but I'm going to focus
+today mostly on 1D.
+
+685
+00:34:00,500 --> 00:34:03,110
+Because it's easy
+to analyze, clean.
+
+686
+00:34:03,110 --> 00:34:06,410
+There's a lot of
+open questions in 2D.
+
+687
+00:34:06,410 --> 00:34:09,739
+So we can also think of these--
+there's points on a line.
+
+688
+00:34:09,739 --> 00:34:14,030
+They have velocities,
+accelerations, who knows what.
+
+689
+00:34:14,030 --> 00:34:14,690
+That would be--
+
+690
+00:34:14,690 --> 00:34:18,650
+
+
+691
+00:34:18,650 --> 00:34:24,710
+OK, let's say-- models
+of trajectories.
+
+692
+00:34:24,710 --> 00:34:31,429
+
+
+693
+00:34:31,429 --> 00:34:35,199
+The simplest one that
+would be affine--
+
+694
+00:34:35,199 --> 00:34:38,706
+f of t equals a plus bt.
+
+695
+00:34:38,706 --> 00:34:41,480
+a and b here would be
+points. a and d dimensions
+
+696
+00:34:41,480 --> 00:34:43,864
+are just values
+in one dimension.
+
+697
+00:34:43,864 --> 00:34:46,469
+
+
+698
+00:34:46,469 --> 00:34:50,030
+So the motivation is, maybe,
+you have cell phones or cars
+
+699
+00:34:50,030 --> 00:34:51,136
+or something.
+
+700
+00:34:51,136 --> 00:34:52,969
+You have some current
+estimates on which way
+
+701
+00:34:52,969 --> 00:34:55,580
+they're going and at what speed.
+
+702
+00:34:55,580 --> 00:34:57,500
+Then this would be
+the simple model.
+
+703
+00:34:57,500 --> 00:35:00,630
+And if either those
+two things change,
+
+704
+00:35:00,630 --> 00:35:02,570
+you have to do a
+change operation.
+
+705
+00:35:02,570 --> 00:35:05,700
+So you pay for that every time
+they change their trajectory.
+
+706
+00:35:05,700 --> 00:35:07,700
+But otherwise, it's going
+to be super efficient,
+
+707
+00:35:07,700 --> 00:35:09,890
+because advance is
+going to be super fast.
+
+708
+00:35:09,890 --> 00:35:12,350
+That's the plan.
+
+709
+00:35:12,350 --> 00:35:17,150
+But maybe it's not just
+position and speed.
+
+710
+00:35:17,150 --> 00:35:20,210
+Maybe also have
+acceleration and stuff.
+
+711
+00:35:20,210 --> 00:35:22,880
+
+
+712
+00:35:22,880 --> 00:35:28,050
+And then the extension
+of that would
+
+713
+00:35:28,050 --> 00:35:34,640
+be bounded degree
+algebraic, which
+
+714
+00:35:34,640 --> 00:35:44,450
+is, you have some polynomial
+of bounded degree--
+
+715
+00:35:44,450 --> 00:35:47,600
+sorry, that should be c--
+
+716
+00:35:47,600 --> 00:35:49,610
+but bounded.
+
+717
+00:35:49,610 --> 00:35:51,890
+And the reason we
+care about bounded
+
+718
+00:35:51,890 --> 00:35:53,834
+is really the following.
+
+719
+00:35:53,834 --> 00:35:55,250
+There's an even
+more general model
+
+720
+00:35:55,250 --> 00:35:57,050
+which we call pseudo algebraic.
+
+721
+00:35:57,050 --> 00:36:30,760
+
+
+722
+00:36:30,760 --> 00:36:34,150
+So we would like to bound the
+cost of this advance operation.
+
+723
+00:36:34,150 --> 00:36:38,500
+What we'd like is that when we
+advance time a large amount,
+
+724
+00:36:38,500 --> 00:36:41,950
+stuff doesn't change
+crazy number of times.
+
+725
+00:36:41,950 --> 00:36:45,250
+And pseudo algebraic says
+that if you look at anything
+
+726
+00:36:45,250 --> 00:36:48,280
+you care about-- we call this
+a certificate of interest.
+
+727
+00:36:48,280 --> 00:36:50,860
+We'll be talking a lot
+about certificates today.
+
+728
+00:36:50,860 --> 00:36:52,360
+Certificate is
+something like, is
+
+729
+00:36:52,360 --> 00:36:53,950
+this point left of that point.
+
+730
+00:36:53,950 --> 00:36:56,630
+It's a Boolean question
+about the moving points.
+
+731
+00:36:56,630 --> 00:36:59,090
+It's either true or false.
+
+732
+00:36:59,090 --> 00:37:00,890
+And what I'd like is that--
+
+733
+00:37:00,890 --> 00:37:02,370
+I have some point.
+
+734
+00:37:02,370 --> 00:37:04,556
+It has some crazy trajectory.
+
+735
+00:37:04,556 --> 00:37:05,430
+I have another point.
+
+736
+00:37:05,430 --> 00:37:07,570
+It has some crazy trajectory.
+
+737
+00:37:07,570 --> 00:37:09,670
+I don't want, is this
+point left of this point,
+
+738
+00:37:09,670 --> 00:37:11,830
+to change an unbounded
+number of times.
+
+739
+00:37:11,830 --> 00:37:15,580
+I'd like it to be constant,
+as long as no change
+
+740
+00:37:15,580 --> 00:37:16,510
+operations are called.
+
+741
+00:37:16,510 --> 00:37:18,850
+So for a single
+trajectory, I'd like
+
+742
+00:37:18,850 --> 00:37:21,070
+these to flip a constant
+number of times.
+
+743
+00:37:21,070 --> 00:37:23,890
+Now, if you're algebraic
+with bounded degree,
+
+744
+00:37:23,890 --> 00:37:25,990
+then that will be the case.
+
+745
+00:37:25,990 --> 00:37:27,940
+But more generally,
+as long as you sort of
+
+746
+00:37:27,940 --> 00:37:30,490
+switch between left and right
+bounded number of times,
+
+747
+00:37:30,490 --> 00:37:33,040
+then that particular
+certificate will only change
+
+748
+00:37:33,040 --> 00:37:34,630
+unbounded number of times.
+
+749
+00:37:34,630 --> 00:37:37,390
+But in general, anything
+where all the certificates
+
+750
+00:37:37,390 --> 00:37:39,370
+I care about change a
+constant number of times
+
+751
+00:37:39,370 --> 00:37:40,690
+is just as good as algebraic.
+
+752
+00:37:40,690 --> 00:37:42,910
+This is really why we like this.
+
+753
+00:37:42,910 --> 00:37:45,190
+I think I've talked enough
+about trajectory models.
+
+754
+00:37:45,190 --> 00:37:46,930
+So it's not totally generic.
+
+755
+00:37:46,930 --> 00:37:50,578
+But it covers a lot of
+things you might care about.
+
+756
+00:37:50,578 --> 00:37:52,509
+AUDIENCE: [INAUDIBLE]
+certificate of interest?
+
+757
+00:37:52,509 --> 00:37:54,050
+ERIK DEMAINE:
+Certificate of interest
+
+758
+00:37:54,050 --> 00:37:58,970
+is just a Boolean function
+on a constant number of data
+
+759
+00:37:58,970 --> 00:38:02,660
+points over time-- a constant
+number of trajectories,
+
+760
+00:38:02,660 --> 00:38:05,045
+I should say.
+
+761
+00:38:05,045 --> 00:38:07,460
+I'll probably actually
+define certificate right now.
+
+762
+00:38:07,460 --> 00:38:08,085
+AUDIENCE: Good.
+
+763
+00:38:08,085 --> 00:38:11,217
+
+
+764
+00:38:11,217 --> 00:38:12,800
+ERIK DEMAINE:
+Certificates-- I'm going
+
+765
+00:38:12,800 --> 00:38:14,360
+to define them more
+as a tool that we
+
+766
+00:38:14,360 --> 00:38:16,220
+use to build data structures,
+but they're really
+
+767
+00:38:16,220 --> 00:38:17,553
+the same thing that I mean here.
+
+768
+00:38:17,553 --> 00:38:26,330
+
+
+769
+00:38:26,330 --> 00:38:31,520
+So pretty much all
+kinetic data structures
+
+770
+00:38:31,520 --> 00:38:33,740
+follow this unified approach.
+
+771
+00:38:33,740 --> 00:38:36,230
+Kinetic data structures are
+actually a pretty new thing,
+
+772
+00:38:36,230 --> 00:38:37,890
+introduced in 1999.
+
+773
+00:38:37,890 --> 00:38:40,160
+So as data structures
+go, that's new.
+
+774
+00:38:40,160 --> 00:38:43,040
+And over the last however
+many years that is--
+
+775
+00:38:43,040 --> 00:38:49,320
+13-- there's been a bunch
+of kinetic data structures.
+
+776
+00:38:49,320 --> 00:38:55,790
+So what we're going to do
+is store the data structure
+
+777
+00:38:55,790 --> 00:38:59,210
+that is accurate now.
+
+778
+00:38:59,210 --> 00:39:02,370
+So this will make queries
+about the present really easy.
+
+779
+00:39:02,370 --> 00:39:03,710
+It just is .
+
+780
+00:39:03,710 --> 00:39:06,020
+You look at the data
+structure, you do a query.
+
+781
+00:39:06,020 --> 00:39:10,310
+And so the hard part
+becomes, how do I do advance?
+
+782
+00:39:10,310 --> 00:39:13,370
+How do I advance time and make
+the new data structure, which
+
+783
+00:39:13,370 --> 00:39:15,480
+is correct, about the new now?
+
+784
+00:39:15,480 --> 00:39:18,230
+
+
+785
+00:39:18,230 --> 00:39:20,770
+The way we do that
+is with certificates.
+
+786
+00:39:20,770 --> 00:39:28,180
+So what I'm going to do is
+additionally store, basically,
+
+787
+00:39:28,180 --> 00:39:33,135
+a proof that this data
+structure is valid.
+
+788
+00:39:33,135 --> 00:39:38,860
+We can say conditions
+which are currently true--
+
+789
+00:39:38,860 --> 00:39:41,880
+and as long as they remain
+true, the data structure
+
+790
+00:39:41,880 --> 00:39:42,690
+remains valid.
+
+791
+00:39:42,690 --> 00:39:47,250
+
+
+792
+00:39:47,250 --> 00:39:52,050
+So these conditions
+are true now, and--
+
+793
+00:39:52,050 --> 00:39:54,540
+sorry-- under which
+data structure
+
+794
+00:39:54,540 --> 00:39:57,040
+is accurate or correct.
+
+795
+00:39:57,040 --> 00:40:00,150
+
+
+796
+00:40:00,150 --> 00:40:04,080
+And those conditions
+are true now.
+
+797
+00:40:04,080 --> 00:40:07,810
+OK, so for example--
+
+798
+00:40:07,810 --> 00:40:09,540
+well, we'll get to
+examples in a moment.
+
+799
+00:40:09,540 --> 00:40:14,720
+
+
+800
+00:40:14,720 --> 00:40:18,840
+We'll just keep abstract
+for a little bit longer.
+
+801
+00:40:18,840 --> 00:40:23,010
+Each of these certificates, you
+can figure out a failure time.
+
+802
+00:40:23,010 --> 00:40:39,830
+
+
+803
+00:40:39,830 --> 00:40:42,560
+So you have some
+certificate, like, this point
+
+804
+00:40:42,560 --> 00:40:45,740
+is to the left of that point.
+
+805
+00:40:45,740 --> 00:40:48,560
+And you just look ahead in time.
+
+806
+00:40:48,560 --> 00:40:51,300
+If you have some constant
+defined trajectories,
+
+807
+00:40:51,300 --> 00:40:53,030
+you just see, when
+is the time when they
+
+808
+00:40:53,030 --> 00:40:54,230
+will be aligned vertically?
+
+809
+00:40:54,230 --> 00:40:58,694
+After that time, they're going
+to switch who is left of whom.
+
+810
+00:40:58,694 --> 00:41:00,110
+So just compute
+that failure time.
+
+811
+00:41:00,110 --> 00:41:01,040
+I'm going to assume--
+
+812
+00:41:01,040 --> 00:41:03,410
+that's another assumption
+about the trajectory model--
+
+813
+00:41:03,410 --> 00:41:06,266
+that this takes constant
+time for trajectory.
+
+814
+00:41:06,266 --> 00:41:10,640
+
+
+815
+00:41:10,640 --> 00:41:17,460
+I do that for every certificate,
+and then put those failure
+
+816
+00:41:17,460 --> 00:41:18,750
+times into a priority queue.
+
+817
+00:41:18,750 --> 00:41:23,232
+
+
+818
+00:41:23,232 --> 00:41:25,392
+Do you want to
+ask your question?
+
+819
+00:41:25,392 --> 00:41:30,352
+AUDIENCE: So is it required
+that a certificate needs to be--
+
+820
+00:41:30,352 --> 00:41:33,328
+like, that we've checked
+that a certificate is true.
+
+821
+00:41:33,328 --> 00:41:35,909
+It just needs to be
+bounded by order one, or--
+
+822
+00:41:35,909 --> 00:41:36,700
+ERIK DEMAINE: Yeah.
+
+823
+00:41:36,700 --> 00:41:39,940
+So I'm assuming checking
+a certificate takes
+
+824
+00:41:39,940 --> 00:41:42,820
+constant time, whether
+it currently holds,
+
+825
+00:41:42,820 --> 00:41:46,160
+and computing the failure
+time takes constant time.
+
+826
+00:41:46,160 --> 00:41:47,440
+Yeah.
+
+827
+00:41:47,440 --> 00:41:50,011
+I mean, you could assume it,
+or maybe you pay a little more.
+
+828
+00:41:50,011 --> 00:41:52,510
+I mean, this is how we're going
+to build the data structure.
+
+829
+00:41:52,510 --> 00:41:54,340
+So whatever it
+costs, it will cost.
+
+830
+00:41:54,340 --> 00:41:56,350
+But I think everything
+we'll talk about
+
+831
+00:41:56,350 --> 00:41:58,141
+and pretty much every
+certificate out there
+
+832
+00:41:58,141 --> 00:42:00,810
+is sort of a
+constant size thing.
+
+833
+00:42:00,810 --> 00:42:01,810
+Some of them are bigger.
+
+834
+00:42:01,810 --> 00:42:05,110
+But we'll get to
+the costs involved.
+
+835
+00:42:05,110 --> 00:42:07,771
+Maybe we won't worry
+about time too much.
+
+836
+00:42:07,771 --> 00:42:10,930
+So priority queue is going
+to take log n time, where
+
+837
+00:42:10,930 --> 00:42:13,960
+n is the number of certificates
+in the data structure, to find,
+
+838
+00:42:13,960 --> 00:42:15,670
+when is the next failure?
+
+839
+00:42:15,670 --> 00:42:17,545
+So if I want to do an
+advance, basically, I'm
+
+840
+00:42:17,545 --> 00:42:19,450
+going to do discrete
+event simulation.
+
+841
+00:42:19,450 --> 00:42:21,580
+I find the next event
+when something changes,
+
+842
+00:42:21,580 --> 00:42:23,610
+i.e. a certificate fails.
+
+843
+00:42:23,610 --> 00:42:25,560
+I'm going to fix that event--
+
+844
+00:42:25,560 --> 00:42:29,230
+fix that certificate-- make the
+data structure correct again.
+
+845
+00:42:29,230 --> 00:42:31,240
+Then advance to
+the next failure.
+
+846
+00:42:31,240 --> 00:42:32,510
+Repeat.
+
+847
+00:42:32,510 --> 00:42:35,590
+As long as there aren't too
+many certificates to mess me up,
+
+848
+00:42:35,590 --> 00:42:37,150
+this advance will be fast.
+
+849
+00:42:37,150 --> 00:42:41,100
+
+
+850
+00:42:41,100 --> 00:42:43,155
+So yeah.
+
+851
+00:42:43,155 --> 00:43:02,010
+
+
+852
+00:43:02,010 --> 00:43:04,690
+So here's how we're going
+to implement advance.
+
+853
+00:43:04,690 --> 00:43:07,770
+Basically in all
+kinetic data structures,
+
+854
+00:43:07,770 --> 00:43:13,020
+we just say, while
+t is greater than
+
+855
+00:43:13,020 --> 00:43:19,020
+or equal to the next failure
+of the priority queue,
+
+856
+00:43:19,020 --> 00:43:21,012
+we advance to that
+moment in time,
+
+857
+00:43:21,012 --> 00:43:22,470
+when something
+interesting happens.
+
+858
+00:43:22,470 --> 00:43:25,560
+
+
+859
+00:43:25,560 --> 00:43:26,550
+We do an event.
+
+860
+00:43:26,550 --> 00:43:30,427
+
+
+861
+00:43:30,427 --> 00:43:31,385
+I'll write it this way.
+
+862
+00:43:31,385 --> 00:43:39,960
+
+
+863
+00:43:39,960 --> 00:43:42,010
+And then we set now to t.
+
+864
+00:43:42,010 --> 00:43:48,550
+
+
+865
+00:43:48,550 --> 00:43:53,200
+And this event thing has to
+somehow fix the data structure
+
+866
+00:43:53,200 --> 00:43:56,511
+and fix the certificates.
+
+867
+00:43:56,511 --> 00:43:59,460
+
+
+868
+00:43:59,460 --> 00:44:02,380
+So that is the challenge, is,
+how do you deal with an event
+
+869
+00:44:02,380 --> 00:44:04,625
+when one of your
+certificates breaks?
+
+870
+00:44:04,625 --> 00:44:07,000
+So if you have a data structure,
+and you want to make it,
+
+871
+00:44:07,000 --> 00:44:10,210
+kinetic you just first
+write down some certificates
+
+872
+00:44:10,210 --> 00:44:13,090
+under which it's
+guaranteed to be valid,
+
+873
+00:44:13,090 --> 00:44:16,760
+and then see how to fix
+them as things happen.
+
+874
+00:44:16,760 --> 00:44:19,010
+Then there's the analysis
+issue, which we will get to.
+
+875
+00:44:19,010 --> 00:44:22,460
+Let's start with an example
+before we get to analyzing,
+
+876
+00:44:22,460 --> 00:44:24,085
+so this becomes a
+little more concrete.
+
+877
+00:44:24,085 --> 00:44:32,602
+
+
+878
+00:44:32,602 --> 00:44:34,070
+AUDIENCE: I have
+another question.
+
+879
+00:44:34,070 --> 00:44:34,861
+ERIK DEMAINE: Yeah.
+
+880
+00:44:34,861 --> 00:44:39,030
+AUDIENCE: So are the change
+operations sort of online,
+
+881
+00:44:39,030 --> 00:44:40,777
+or do you have the
+sequence of changes
+
+882
+00:44:40,777 --> 00:44:42,110
+that you're going to [INAUDIBLE]
+
+883
+00:44:42,110 --> 00:44:44,151
+ERIK DEMAINE: All of these
+operations are online.
+
+884
+00:44:44,151 --> 00:44:48,050
+So at any moment, someone says
+advance, someone says change,
+
+885
+00:44:48,050 --> 00:44:49,040
+or someone says query.
+
+886
+00:44:49,040 --> 00:44:53,950
+And query is respect to now.
+
+887
+00:44:53,950 --> 00:44:56,530
+So we have no idea which
+of these are coming,
+
+888
+00:44:56,530 --> 00:44:57,825
+in what order, whatever.
+
+889
+00:44:57,825 --> 00:45:00,704
+I don't think anyone's
+studied the case where
+
+890
+00:45:00,704 --> 00:45:03,120
+you know up front all the
+things that are going to happen.
+
+891
+00:45:03,120 --> 00:45:05,630
+Though there are, presumably,
+applications for that.
+
+892
+00:45:05,630 --> 00:45:08,090
+I mean, time can just be a
+euphemism for a dimension,
+
+893
+00:45:08,090 --> 00:45:10,410
+or whatever.
+
+894
+00:45:10,410 --> 00:45:12,470
+But a lot of the
+kinetic people really
+
+895
+00:45:12,470 --> 00:45:17,300
+want to be tracking points and
+maintaining what's happening.
+
+896
+00:45:17,300 --> 00:45:20,670
+So let's do a 1D problem--
+
+897
+00:45:20,670 --> 00:45:24,370
+a simple one-- sort of
+the most basic problem,
+
+898
+00:45:24,370 --> 00:45:26,090
+which is a predecessor problem.
+
+899
+00:45:26,090 --> 00:45:27,880
+Insert, delete.
+
+900
+00:45:27,880 --> 00:45:30,830
+We won't worry too much
+about insert and delete here.
+
+901
+00:45:30,830 --> 00:45:33,590
+It's hard enough, because the
+points are moving around--
+
+902
+00:45:33,590 --> 00:45:36,020
+and predecessor and successor.
+
+903
+00:45:36,020 --> 00:45:39,800
+So I want to know, on the
+line, I have some points.
+
+904
+00:45:39,800 --> 00:45:40,910
+They're moving.
+
+905
+00:45:40,910 --> 00:45:45,380
+Now, query is, at the current
+time, who's to the left
+
+906
+00:45:45,380 --> 00:45:48,010
+and who's to the
+right of this query?
+
+907
+00:45:48,010 --> 00:45:48,510
+OK.
+
+908
+00:45:48,510 --> 00:45:51,360
+
+
+909
+00:45:51,360 --> 00:45:54,330
+How do we maintain this?
+
+910
+00:45:54,330 --> 00:45:57,030
+This is a problem we'll be
+studying a lot in this class.
+
+911
+00:45:57,030 --> 00:46:00,130
+But the basic structure for
+solving predecessor, insert,
+
+912
+00:46:00,130 --> 00:46:03,592
+delete, predecessor, is--
+
+913
+00:46:03,592 --> 00:46:04,800
+AUDIENCE: Binary search tree.
+
+914
+00:46:04,800 --> 00:46:08,190
+ERIK DEMAINE:
+Binary search tree--
+
+915
+00:46:08,190 --> 00:46:09,840
+balanced binary search tree.
+
+916
+00:46:09,840 --> 00:46:14,970
+OK, so let's use a log n
+high AVL trees-- whatever.
+
+917
+00:46:14,970 --> 00:46:18,097
+So what do we need
+for certificates?
+
+918
+00:46:18,097 --> 00:46:19,680
+I was going to use
+this as an example,
+
+919
+00:46:19,680 --> 00:46:21,055
+but it's actually
+a little tricky
+
+920
+00:46:21,055 --> 00:46:23,580
+to think about what
+the certificates are.
+
+921
+00:46:23,580 --> 00:46:25,320
+Because the binary
+search tree property
+
+922
+00:46:25,320 --> 00:46:32,254
+is x plus or equal to x
+greater or equal to x.
+
+923
+00:46:32,254 --> 00:46:33,795
+That's kind of a
+lot of certificates.
+
+924
+00:46:33,795 --> 00:46:36,510
+If I want to compare x to
+every single guy in here
+
+925
+00:46:36,510 --> 00:46:39,440
+and compare x to every single
+guy in here, that would be a,
+
+926
+00:46:39,440 --> 00:46:42,120
+I think, quadratic number
+of certificates, in general.
+
+927
+00:46:42,120 --> 00:46:44,550
+Almost everyone has a relation.
+
+928
+00:46:44,550 --> 00:46:46,680
+I'd prefer to get away
+with fewer certificates.
+
+929
+00:46:46,680 --> 00:46:51,400
+Because then, less
+certificates will fail.
+
+930
+00:46:51,400 --> 00:46:55,140
+So cute idea--
+
+931
+00:46:55,140 --> 00:46:59,960
+I really only need to compare x
+with this one and this one. --
+
+932
+00:46:59,960 --> 00:47:02,730
+the max in the subtree and
+the min in the subtree.
+
+933
+00:47:02,730 --> 00:47:06,900
+In general, if I look at
+the data in sorted order,
+
+934
+00:47:06,900 --> 00:47:15,770
+it has to stay
+sorted order, where
+
+935
+00:47:15,770 --> 00:47:17,630
+it's not going to be sorted.
+
+936
+00:47:17,630 --> 00:47:19,970
+But this is an
+inorder traversal.
+
+937
+00:47:19,970 --> 00:47:22,810
+
+
+938
+00:47:22,810 --> 00:47:24,980
+Inorder traversal
+is something we
+
+939
+00:47:24,980 --> 00:47:27,874
+can understand without
+knowing what the data is.
+
+940
+00:47:27,874 --> 00:47:29,790
+Because remember, data
+is constantly changing.
+
+941
+00:47:29,790 --> 00:47:31,896
+We can't really
+use the keys here.
+
+942
+00:47:31,896 --> 00:47:33,770
+But we can use the
+abstract shape of the tree
+
+943
+00:47:33,770 --> 00:47:37,610
+and do an inorder
+traversal, and say, look,
+
+944
+00:47:37,610 --> 00:47:39,890
+as long as x i is less than
+or equal to x i plus one
+
+945
+00:47:39,890 --> 00:47:42,350
+in the inorder
+traversal for all i,
+
+946
+00:47:42,350 --> 00:47:44,690
+then this is a valid
+binary search tree.
+
+947
+00:47:44,690 --> 00:47:47,637
+If an inorder traversal
+stays sorted, we're golden.
+
+948
+00:47:47,637 --> 00:47:48,845
+So those are my certificates.
+
+949
+00:47:48,845 --> 00:47:50,951
+There's only n of them.
+
+950
+00:47:50,951 --> 00:47:51,920
+So that's nice.
+
+951
+00:47:51,920 --> 00:47:55,910
+
+
+952
+00:47:55,910 --> 00:47:59,270
+And we need to check that we
+can compute a failure time.
+
+953
+00:47:59,270 --> 00:48:00,700
+This is usually really easy.
+
+954
+00:48:00,700 --> 00:48:11,790
+But we'll go through the
+exercise of writing it down.
+
+955
+00:48:11,790 --> 00:48:16,590
+
+
+956
+00:48:16,590 --> 00:48:19,410
+So I want to know, among
+all times greater than
+
+957
+00:48:19,410 --> 00:48:23,325
+or equal to now, when will x i--
+
+958
+00:48:23,325 --> 00:48:24,695
+am I doing strict here?
+
+959
+00:48:24,695 --> 00:48:28,850
+This should probably
+be greater than.
+
+960
+00:48:28,850 --> 00:48:31,760
+Yeah, so that's why
+I have an infimum.
+
+961
+00:48:31,760 --> 00:48:36,187
+OK, I take the earliest
+moment when x i of t
+
+962
+00:48:36,187 --> 00:48:37,770
+is greater than x i
+of plus one, which
+
+963
+00:48:37,770 --> 00:48:41,310
+is the opposite of
+what I want, and take
+
+964
+00:48:41,310 --> 00:48:42,660
+the infimum of those times.
+
+965
+00:48:42,660 --> 00:48:44,790
+And so that will be the
+moment of transition
+
+966
+00:48:44,790 --> 00:48:45,771
+when they're equal.
+
+967
+00:48:45,771 --> 00:48:47,520
+And then-- boom-- it's
+going to jump over.
+
+968
+00:48:47,520 --> 00:48:49,911
+I'm assuming these
+things are continuous.
+
+969
+00:48:49,911 --> 00:48:51,660
+AUDIENCE: That's why
+you take the infimum?
+
+970
+00:48:51,660 --> 00:48:52,451
+ERIK DEMAINE: Yeah.
+
+971
+00:48:52,451 --> 00:48:55,620
+So it would be an infimum,
+because these guys
+
+972
+00:48:55,620 --> 00:48:57,420
+are going to cross.
+
+973
+00:48:57,420 --> 00:49:00,355
+I mean, I don't care about
+this kind of happening.
+
+974
+00:49:00,355 --> 00:49:02,040
+But if it's going to
+actually go across,
+
+975
+00:49:02,040 --> 00:49:04,623
+then there'll be the moment of
+transition where they're equal.
+
+976
+00:49:04,623 --> 00:49:07,810
+And that's going
+to be this infimum.
+
+977
+00:49:07,810 --> 00:49:08,570
+OK.
+
+978
+00:49:08,570 --> 00:49:09,570
+How do you compute that?
+
+979
+00:49:09,570 --> 00:49:11,986
+Well, it depends what these
+trajectory functions are like.
+
+980
+00:49:11,986 --> 00:49:16,080
+If it's algebraic, then this
+is just a polynomial thing.
+
+981
+00:49:16,080 --> 00:49:17,460
+You can do it in bounded degree.
+
+982
+00:49:17,460 --> 00:49:19,440
+You can do it in constant time.
+
+983
+00:49:19,440 --> 00:49:21,870
+That's our model.
+
+984
+00:49:21,870 --> 00:49:24,690
+OK, so you put them
+into a priority queue.
+
+985
+00:49:24,690 --> 00:49:25,830
+Do this advance.
+
+986
+00:49:25,830 --> 00:49:29,130
+And now, the question is,
+how do you process an event?
+
+987
+00:49:29,130 --> 00:49:30,840
+When one of these
+things happens,
+
+988
+00:49:30,840 --> 00:49:33,090
+you're about to
+transition to x i
+
+989
+00:49:33,090 --> 00:49:34,830
+being bigger than x i plus one.
+
+990
+00:49:34,830 --> 00:49:35,610
+What do you do?
+
+991
+00:49:35,610 --> 00:49:40,570
+
+
+992
+00:49:40,570 --> 00:49:42,977
+So that's the real heart
+of the data structure.
+
+993
+00:49:42,977 --> 00:49:49,800
+
+
+994
+00:49:49,800 --> 00:49:52,260
+Although, really, the heart
+of a kinetic data structure
+
+995
+00:49:52,260 --> 00:49:55,080
+is the choice of certificates.
+
+996
+00:49:55,080 --> 00:49:58,920
+If you choose certificates
+well, then you're
+
+997
+00:49:58,920 --> 00:50:00,390
+going to be efficient.
+
+998
+00:50:00,390 --> 00:50:01,825
+We haven't defined
+efficient yet.
+
+999
+00:50:01,825 --> 00:50:03,520
+We will.
+
+1000
+00:50:03,520 --> 00:50:06,708
+Otherwise, you're not
+going to be so fast.
+
+1001
+00:50:06,708 --> 00:50:11,430
+So it's all about using
+certificates right.
+
+1002
+00:50:11,430 --> 00:50:13,825
+The rest is kind
+of straightforward.
+
+1003
+00:50:13,825 --> 00:50:16,740
+
+
+1004
+00:50:16,740 --> 00:50:20,600
+So let's suppose that this
+certificate is about to fail.
+
+1005
+00:50:20,600 --> 00:50:25,220
+And we're guaranteed by this
+algorithm that it fails now.
+
+1006
+00:50:25,220 --> 00:50:28,180
+We have advanced to the time
+when it is about to fail.
+
+1007
+00:50:28,180 --> 00:50:30,180
+We process that event.
+
+1008
+00:50:30,180 --> 00:50:32,360
+So now is the time when
+these two things are equal.
+
+1009
+00:50:32,360 --> 00:50:36,990
+Right after now, we will
+get to greater than.
+
+1010
+00:50:36,990 --> 00:50:39,050
+So here's what I do.
+
+1011
+00:50:39,050 --> 00:50:42,710
+
+
+1012
+00:50:42,710 --> 00:50:49,000
+Swap them in the
+binary search tree.
+
+1013
+00:50:49,000 --> 00:50:52,865
+So right now, maybe
+just in general,
+
+1014
+00:50:52,865 --> 00:50:54,490
+it's going to look
+something like this.
+
+1015
+00:50:54,490 --> 00:50:56,580
+We have x i, x i plus one.
+
+1016
+00:50:56,580 --> 00:51:00,310
+Or it could be the reverse
+scenario, where x i plus one
+
+1017
+00:51:00,310 --> 00:51:03,070
+is a leaf, and x i
+is the predecessor.
+
+1018
+00:51:03,070 --> 00:51:06,010
+Right now, they're
+equal in value.
+
+1019
+00:51:06,010 --> 00:51:12,070
+So I'm just going to interchange
+them, move x i up here.
+
+1020
+00:51:12,070 --> 00:51:13,720
+So it's a little confusing.
+
+1021
+00:51:13,720 --> 00:51:17,560
+But this is x i plus
+one, and this is x i.
+
+1022
+00:51:17,560 --> 00:51:18,400
+Replace those.
+
+1023
+00:51:18,400 --> 00:51:22,090
+These are really pointers
+to the trajectories,
+
+1024
+00:51:22,090 --> 00:51:24,070
+however they're described.
+
+1025
+00:51:24,070 --> 00:51:25,000
+Interchange them.
+
+1026
+00:51:25,000 --> 00:51:26,890
+It's still valid as
+a binary search tree.
+
+1027
+00:51:26,890 --> 00:51:28,000
+Actually, this
+binary search tree
+
+1028
+00:51:28,000 --> 00:51:30,550
+never becomes invalid, because
+at this moment, they're equal.
+
+1029
+00:51:30,550 --> 00:51:32,590
+And after now,
+things will continue
+
+1030
+00:51:32,590 --> 00:51:36,080
+to be OK, because this guy
+will be bigger than this one.
+
+1031
+00:51:36,080 --> 00:51:38,530
+That's the assumption.
+
+1032
+00:51:38,530 --> 00:51:40,360
+We just need to fix
+the certificates.
+
+1033
+00:51:40,360 --> 00:51:44,000
+Fixing the data structure was
+pretty trivial-- constant time.
+
+1034
+00:51:44,000 --> 00:51:47,380
+So what certificates
+do we need to do?
+
+1035
+00:51:47,380 --> 00:51:49,360
+We need to add this
+new certificate.
+
+1036
+00:51:49,360 --> 00:51:51,825
+I'm going to call it
+x i prime is less than
+
+1037
+00:51:51,825 --> 00:51:54,260
+or equal to x i plus one prime.
+
+1038
+00:51:54,260 --> 00:51:57,190
+So this is actually
+x i plus one,
+
+1039
+00:51:57,190 --> 00:52:00,120
+formerly known as x i plus
+one, formerly known as x i.
+
+1040
+00:52:00,120 --> 00:52:02,860
+But it'd be really confusing.
+
+1041
+00:52:02,860 --> 00:52:06,010
+So I'm going to use the primes
+to be the new data structure.
+
+1042
+00:52:06,010 --> 00:52:08,840
+Because this is always the
+kind of certificate we want.
+
+1043
+00:52:08,840 --> 00:52:14,740
+We also need to
+update certificates.
+
+1044
+00:52:14,740 --> 00:52:19,270
+So there used to be an x i minus
+one less than or equal to x i.
+
+1045
+00:52:19,270 --> 00:52:22,440
+We want to turn that into
+x i minus one less than
+
+1046
+00:52:22,440 --> 00:52:25,340
+or equal to x i prime.
+
+1047
+00:52:25,340 --> 00:52:29,230
+And we used to have an x i less
+than or equal to x i plus one.
+
+1048
+00:52:29,230 --> 00:52:32,665
+We want to turn that
+into x i prime less than
+
+1049
+00:52:32,665 --> 00:52:34,441
+or equal-- oh, that
+one, we already did.
+
+1050
+00:52:34,441 --> 00:52:34,940
+Sorry.
+
+1051
+00:52:34,940 --> 00:52:39,550
+So I want x i plus
+one to x i plus two.
+
+1052
+00:52:39,550 --> 00:52:45,000
+And I want to do, now, x i
+plus one prime to x i plus two.
+
+1053
+00:52:45,000 --> 00:52:46,750
+OK, basically, wherever
+the primes happen,
+
+1054
+00:52:46,750 --> 00:52:48,480
+which is x i and x i plus one--
+
+1055
+00:52:48,480 --> 00:52:50,230
+whatever certificates
+they're involved in,
+
+1056
+00:52:50,230 --> 00:52:51,730
+you have to update them--
+
+1057
+00:52:51,730 --> 00:52:55,120
+meaning, rip out the old
+one, put in the new one.
+
+1058
+00:52:55,120 --> 00:52:56,950
+And the main issue
+here is that you have
+
+1059
+00:52:56,950 --> 00:52:58,940
+to maintain the priority queue.
+
+1060
+00:52:58,940 --> 00:53:01,690
+So you've got to take them
+out of the priority queue,
+
+1061
+00:53:01,690 --> 00:53:04,960
+recompute their failure times,
+put them back in the priority
+
+1062
+00:53:04,960 --> 00:53:07,550
+queue with that failure time.
+
+1063
+00:53:07,550 --> 00:53:12,010
+But the point is, this is a
+constant number of updates.
+
+1064
+00:53:12,010 --> 00:53:15,760
+In general, pretty much, as long
+as the things you're messing
+
+1065
+00:53:15,760 --> 00:53:17,980
+with-- the items
+you're changing--
+
+1066
+00:53:17,980 --> 00:53:21,130
+are involved in a small
+number of certificates each,
+
+1067
+00:53:21,130 --> 00:53:23,414
+then this will be cheap.
+
+1068
+00:53:23,414 --> 00:53:24,580
+I'm writing this explicitly.
+
+1069
+00:53:24,580 --> 00:53:26,871
+But in general, it's just,
+update whatever certificates
+
+1070
+00:53:26,871 --> 00:53:28,330
+those points were involved in.
+
+1071
+00:53:28,330 --> 00:53:30,400
+The issue is how many
+things you change,
+
+1072
+00:53:30,400 --> 00:53:33,310
+and how many certificates
+each of those things is in.
+
+1073
+00:53:33,310 --> 00:53:35,320
+In this case, changing
+a constant number
+
+1074
+00:53:35,320 --> 00:53:37,319
+of things-- each of them
+is in a constant number
+
+1075
+00:53:37,319 --> 00:53:38,020
+of certificates.
+
+1076
+00:53:38,020 --> 00:53:40,810
+So it's not constant time,
+but a constant number
+
+1077
+00:53:40,810 --> 00:53:45,655
+of calls to priority queue
+updates-- so log n time.
+
+1078
+00:53:45,655 --> 00:53:46,550
+AUDIENCE: Question.
+
+1079
+00:53:46,550 --> 00:53:47,758
+ERIK DEMAINE: Yeah, question.
+
+1080
+00:53:47,758 --> 00:53:50,830
+AUDIENCE: So but how do you
+find the things that you just
+
+1081
+00:53:50,830 --> 00:53:54,065
+changed in the priority
+queue of the failure times.
+
+1082
+00:53:54,065 --> 00:53:56,440
+ERIK DEMAINE: How do you find
+them in the priority queue?
+
+1083
+00:53:56,440 --> 00:53:58,720
+How do you find these x
+i's and x i plus ones?
+
+1084
+00:53:58,720 --> 00:54:01,240
+
+
+1085
+00:54:01,240 --> 00:54:02,730
+Every point knows
+what certificates
+
+1086
+00:54:02,730 --> 00:54:04,180
+it's in, meaning it
+has a point or two--
+
+1087
+00:54:04,180 --> 00:54:05,200
+a list of certificates it's in.
+
+1088
+00:54:05,200 --> 00:54:06,250
+There's only two of them.
+
+1089
+00:54:06,250 --> 00:54:07,820
+And each certificate
+has a pointer
+
+1090
+00:54:07,820 --> 00:54:09,687
+into its existence in
+the priority queue.
+
+1091
+00:54:09,687 --> 00:54:11,770
+So then you know where it
+is in the priority queue
+
+1092
+00:54:11,770 --> 00:54:13,548
+and you can rip it out.
+
+1093
+00:54:13,548 --> 00:54:16,020
+Yeah.
+
+1094
+00:54:16,020 --> 00:54:17,909
+Lots of pointers
+and cross-linking.
+
+1095
+00:54:17,909 --> 00:54:19,620
+Yeah?
+
+1096
+00:54:19,620 --> 00:54:24,755
+AUDIENCE: So in something
+that's pseudo algebraic,
+
+1097
+00:54:24,755 --> 00:54:28,667
+any certificate of interest
+changes o of one times.
+
+1098
+00:54:28,667 --> 00:54:32,505
+But here, there's o of n
+squared-- even though we're
+
+1099
+00:54:32,505 --> 00:54:34,046
+only taking n
+certificates at a time,
+
+1100
+00:54:34,046 --> 00:54:37,446
+there's o of n squared possible
+certificates in each of them.
+
+1101
+00:54:37,446 --> 00:54:39,320
+ERIK DEMAINE: You're
+asking about efficiency,
+
+1102
+00:54:39,320 --> 00:54:41,780
+which we'll go to now.
+
+1103
+00:54:41,780 --> 00:54:47,180
+This looks disconcerting,
+because even though pseudo
+
+1104
+00:54:47,180 --> 00:54:50,300
+algebraic gives us that each
+certificate won't change
+
+1105
+00:54:50,300 --> 00:54:52,520
+too many times, there
+are quadratic number
+
+1106
+00:54:52,520 --> 00:54:53,750
+of potential certificates.
+
+1107
+00:54:53,750 --> 00:54:55,820
+They could all become relevant.
+
+1108
+00:54:55,820 --> 00:55:05,900
+And indeed, that is the case,
+if you have these points, spaced
+
+1109
+00:55:05,900 --> 00:55:08,600
+out a lot, and then
+you have these points,
+
+1110
+00:55:08,600 --> 00:55:10,520
+spaced out a little--
+
+1111
+00:55:10,520 --> 00:55:12,110
+four and four.
+
+1112
+00:55:12,110 --> 00:55:16,910
+And these guys are all moving
+constant velocity this way.
+
+1113
+00:55:16,910 --> 00:55:20,240
+And the white guys
+are stationary.
+
+1114
+00:55:20,240 --> 00:55:22,180
+Then what happens?
+
+1115
+00:55:22,180 --> 00:55:25,959
+Well, there's event, event,
+event, event, event, event,
+
+1116
+00:55:25,959 --> 00:55:28,250
+event, event, event, event,
+event, event, event, event,
+
+1117
+00:55:28,250 --> 00:55:31,160
+event, event, event,
+event, event, event, event.
+
+1118
+00:55:31,160 --> 00:55:34,730
+You're going to get
+n squared events.
+
+1119
+00:55:34,730 --> 00:55:41,040
+You get, like, n over two each
+time you cross a white point.
+
+1120
+00:55:41,040 --> 00:55:43,440
+I call this OK.
+
+1121
+00:55:43,440 --> 00:55:44,880
+Why?
+
+1122
+00:55:44,880 --> 00:55:47,044
+Because of efficiency.
+
+1123
+00:55:47,044 --> 00:55:49,770
+
+
+1124
+00:55:49,770 --> 00:55:52,440
+The claim is, this is sort of
+the best you could hope to do.
+
+1125
+00:55:52,440 --> 00:55:55,260
+So in that sense, it's as
+good as you can hope to do.
+
+1126
+00:55:55,260 --> 00:56:00,050
+If you want to
+maintain predecessors--
+
+1127
+00:56:00,050 --> 00:56:01,860
+let's put it this way.
+
+1128
+00:56:01,860 --> 00:56:02,895
+If we need to know--
+
+1129
+00:56:02,895 --> 00:56:05,950
+
+
+1130
+00:56:05,950 --> 00:56:08,700
+"know" is a sort
+of vague thing--
+
+1131
+00:56:08,700 --> 00:56:24,200
+the sorted order of the points,
+then you need an event--
+
+1132
+00:56:24,200 --> 00:56:26,450
+if we're going to keep a
+data structure that is always
+
+1133
+00:56:26,450 --> 00:56:30,530
+accurate now-- so this is
+sort of an assumption--
+
+1134
+00:56:30,530 --> 00:56:38,336
+then you need an event every
+time you have an order change.
+
+1135
+00:56:38,336 --> 00:56:39,920
+That's sort of a tautology.
+
+1136
+00:56:39,920 --> 00:56:44,150
+But it's a perspective.
+
+1137
+00:56:44,150 --> 00:56:45,800
+And what's happening
+here is that we
+
+1138
+00:56:45,800 --> 00:56:48,620
+have an event every time
+there's an order change.
+
+1139
+00:56:48,620 --> 00:56:51,550
+So sometimes, yeah,
+it's going to be bad.
+
+1140
+00:56:51,550 --> 00:56:54,840
+Worst case here is quadratic.
+
+1141
+00:56:54,840 --> 00:56:58,070
+You can actually prove
+for pseudo algebraic,
+
+1142
+00:56:58,070 --> 00:57:00,390
+it is order n squared events.
+
+1143
+00:57:00,390 --> 00:57:01,850
+So this was really
+a lower bound.
+
+1144
+00:57:01,850 --> 00:57:04,950
+
+
+1145
+00:57:04,950 --> 00:57:08,810
+But it is also order n
+squared all the time,
+
+1146
+00:57:08,810 --> 00:57:10,679
+because, if you look
+at any pair of guys,
+
+1147
+00:57:10,679 --> 00:57:13,220
+they're only going to change a
+constant number of times who's
+
+1148
+00:57:13,220 --> 00:57:15,740
+above whom, for
+pseudo algebraic,
+
+1149
+00:57:15,740 --> 00:57:18,040
+if there are no change events.
+
+1150
+00:57:18,040 --> 00:57:20,870
+So for efficiency,
+because it's really hard
+
+1151
+00:57:20,870 --> 00:57:23,780
+to analyze if points are
+changing their trajectories all
+
+1152
+00:57:23,780 --> 00:57:26,150
+the time, assume
+there's no changes.
+
+1153
+00:57:26,150 --> 00:57:28,380
+We basically just
+advance to infinity.
+
+1154
+00:57:28,380 --> 00:57:30,080
+How much could
+that possibly cost?
+
+1155
+00:57:30,080 --> 00:57:33,060
+That's how kinetic people
+like to analyze things.
+
+1156
+00:57:33,060 --> 00:57:35,270
+And for this problem, for
+maintaining sorted order
+
+1157
+00:57:35,270 --> 00:57:38,900
+at all times, the worst case
+answer is theta n squared.
+
+1158
+00:57:38,900 --> 00:57:40,800
+This data structure
+achieves theta n squared,
+
+1159
+00:57:40,800 --> 00:57:45,000
+so we consider it worst case
+optimal, in this weird sense.
+
+1160
+00:57:45,000 --> 00:57:47,600
+OK, this is if you really want
+to maintain the sorted order.
+
+1161
+00:57:47,600 --> 00:57:50,240
+Now, we didn't say we wanted
+to maintain the sorted order.
+
+1162
+00:57:50,240 --> 00:57:53,570
+We said we want to maintain
+a predecessor data structure.
+
+1163
+00:57:53,570 --> 00:57:57,284
+But it feels kind of like those
+are the same thing, maybe.
+
+1164
+00:57:57,284 --> 00:57:59,450
+I don't know if there's a
+formal sense in which this
+
+1165
+00:57:59,450 --> 00:58:00,470
+is the case.
+
+1166
+00:58:00,470 --> 00:58:04,336
+And efficiency, in general, is
+the vaguest part of kinetic.
+
+1167
+00:58:04,336 --> 00:58:05,960
+And for each problem,
+you have to think
+
+1168
+00:58:05,960 --> 00:58:08,360
+hard to understand,
+what does efficient
+
+1169
+00:58:08,360 --> 00:58:09,380
+mean for this problem?
+
+1170
+00:58:09,380 --> 00:58:12,050
+
+
+1171
+00:58:12,050 --> 00:58:14,700
+But maybe don't even
+worry about efficiency--
+
+1172
+00:58:14,700 --> 00:58:16,480
+what does a lower bound mean--
+
+1173
+00:58:16,480 --> 00:58:19,010
+but bottom line is-- worst
+case, n squared events,
+
+1174
+00:58:19,010 --> 00:58:22,280
+if there are no
+change operations.
+
+1175
+00:58:22,280 --> 00:58:25,120
+So you can think of the
+running time, if you want,
+
+1176
+00:58:25,120 --> 00:58:28,010
+of jumping to infinity as order
+n squared in the worst case.
+
+1177
+00:58:28,010 --> 00:58:30,410
+That's how we
+analyze these things.
+
+1178
+00:58:30,410 --> 00:58:32,610
+There are other things
+we'd like to analyze.
+
+1179
+00:58:32,610 --> 00:58:34,650
+Efficiency is one of them.
+
+1180
+00:58:34,650 --> 00:58:40,310
+We have three others,
+which I sort of hinted at.
+
+1181
+00:58:40,310 --> 00:58:46,870
+There's responsiveness, which
+is time spent to do an event.
+
+1182
+00:58:46,870 --> 00:58:48,500
+So when a certificate
+is invalidated,
+
+1183
+00:58:48,500 --> 00:58:51,320
+how much time does
+it take to do that?
+
+1184
+00:58:51,320 --> 00:58:54,380
+There's locality, which
+is closely related.
+
+1185
+00:58:54,380 --> 00:58:57,590
+This is the number of--
+
+1186
+00:58:57,590 --> 00:59:07,730
+oh, I see-- number of
+certificates per data object.
+
+1187
+00:59:07,730 --> 00:59:11,560
+
+
+1188
+00:59:11,560 --> 00:59:14,570
+I said over here, this is
+good, because each item
+
+1189
+00:59:14,570 --> 00:59:16,490
+x i is only involved
+in a constant number
+
+1190
+00:59:16,490 --> 00:59:17,370
+of certificates.
+
+1191
+00:59:17,370 --> 00:59:19,802
+So we say the
+locality is constant--
+
+1192
+00:59:19,802 --> 00:59:22,310
+constant number of
+certificates per object.
+
+1193
+00:59:22,310 --> 00:59:24,410
+Usually, locality
+implies responsive.
+
+1194
+00:59:24,410 --> 00:59:26,760
+As long as you can update
+the data structure,
+
+1195
+00:59:26,760 --> 00:59:29,841
+you can also update the
+certificates in whatever--
+
+1196
+00:59:29,841 --> 00:59:31,340
+you pay a log factor,
+because you're
+
+1197
+00:59:31,340 --> 00:59:33,150
+updating a priority queue.
+
+1198
+00:59:33,150 --> 00:59:36,160
+But you can update
+all those events,
+
+1199
+00:59:36,160 --> 00:59:39,110
+or redo all the
+certificates in an event,
+
+1200
+00:59:39,110 --> 00:59:40,080
+provided you are local.
+
+1201
+00:59:40,080 --> 00:59:44,096
+So locally usually implies
+responsive, more or less.
+
+1202
+00:59:44,096 --> 00:59:45,845
+And then-- what's the
+other one-- compact.
+
+1203
+00:59:45,845 --> 00:59:48,530
+
+
+1204
+00:59:48,530 --> 00:59:50,630
+This is about space.
+
+1205
+00:59:50,630 --> 00:59:55,170
+And we just like the number
+of certificates to be small.
+
+1206
+00:59:55,170 --> 00:59:58,180
+So in this case, number
+of certificates is linear.
+
+1207
+00:59:58,180 --> 00:59:59,720
+That's that up here.
+
+1208
+00:59:59,720 --> 01:00:02,540
+So we consider the structure
+to be optimally compact.
+
+1209
+01:00:02,540 --> 01:00:04,850
+You need at least n.
+
+1210
+01:00:04,850 --> 01:00:08,720
+So in our case, we're getting
+order n here, order one here,
+
+1211
+01:00:08,720 --> 01:00:11,240
+order log n here.
+
+1212
+01:00:11,240 --> 01:00:17,210
+And efficiency I guess you'd
+call constant, kind of.
+
+1213
+01:00:17,210 --> 01:00:20,660
+Efficiency is the ratio
+of how many events
+
+1214
+01:00:20,660 --> 01:00:24,950
+you do divided by how many
+events you need to do.
+
+1215
+01:00:24,950 --> 01:00:30,500
+And here, it is optimal,
+in a certain vague sense.
+
+1216
+01:00:30,500 --> 01:00:32,000
+Sorry, that's a
+little unsatisfying.
+
+1217
+01:00:32,000 --> 01:00:35,240
+But it's unsatisfying.
+
+1218
+01:00:35,240 --> 01:00:38,720
+That's the literature
+for that problem.
+
+1219
+01:00:38,720 --> 01:00:40,632
+We're going to do
+another problem, which is
+
+1220
+01:00:40,632 --> 01:00:41,840
+more satisfying, I would say.
+
+1221
+01:00:41,840 --> 01:00:45,440
+
+
+1222
+01:00:45,440 --> 01:00:47,750
+And it kind of shows
+you why kinetic problems
+
+1223
+01:00:47,750 --> 01:00:49,637
+are pretty interesting.
+
+1224
+01:00:49,637 --> 01:00:53,220
+
+
+1225
+01:00:53,220 --> 01:00:55,950
+Data structures are
+often pretty darn simple,
+
+1226
+01:00:55,950 --> 01:00:59,952
+and the fun part
+is the analysis.
+
+1227
+01:00:59,952 --> 01:01:04,300
+Or, where it can get
+intricate is the analysis.
+
+1228
+01:01:04,300 --> 01:01:06,990
+So let's solve kinetic heap.
+
+1229
+01:01:06,990 --> 01:01:09,960
+Our goal is to be
+able to do find min.
+
+1230
+01:01:09,960 --> 01:01:12,490
+
+
+1231
+01:01:12,490 --> 01:01:17,730
+And yeah, there's also
+insertions and deletions.
+
+1232
+01:01:17,730 --> 01:01:19,860
+But I'm not going
+to think about them.
+
+1233
+01:01:19,860 --> 01:01:22,190
+Because they're not
+really that different.
+
+1234
+01:01:22,190 --> 01:01:23,520
+They're kind of like a change.
+
+1235
+01:01:23,520 --> 01:01:25,120
+Let's not worry about it.
+
+1236
+01:01:25,120 --> 01:01:27,870
+The goal is to
+maintain the minimum.
+
+1237
+01:01:27,870 --> 01:01:32,100
+Now, if you look at this point
+set and their velocities,
+
+1238
+01:01:32,100 --> 01:01:35,490
+how many times does
+the minimum change?
+
+1239
+01:01:35,490 --> 01:01:36,900
+Once.
+
+1240
+01:01:36,900 --> 01:01:38,610
+Initially, the min is this.
+
+1241
+01:01:38,610 --> 01:01:40,380
+Eventually, the
+min will be this--
+
+1242
+01:01:40,380 --> 01:01:42,810
+one change to the minimum.
+
+1243
+01:01:42,810 --> 01:01:45,960
+So this data structure is a bad
+way to maintain the minimum.
+
+1244
+01:01:45,960 --> 01:01:47,930
+Yes, it does
+maintain the minimum.
+
+1245
+01:01:47,930 --> 01:01:50,130
+But it's going to spend a
+quadratic number of events
+
+1246
+01:01:50,130 --> 01:01:53,860
+in this situation, where
+the min only changes once.
+
+1247
+01:01:53,860 --> 01:01:54,990
+So can we get a--
+
+1248
+01:01:54,990 --> 01:01:56,490
+ideally, you have
+one certificate,
+
+1249
+01:01:56,490 --> 01:01:59,030
+which is like, this
+point is the minimum.
+
+1250
+01:01:59,030 --> 01:02:00,750
+But that's not such
+a good certificate,
+
+1251
+01:02:00,750 --> 01:02:02,905
+because then, every
+point is involved in it.
+
+1252
+01:02:02,905 --> 01:02:05,030
+And how do you know when
+it's going to be violated?
+
+1253
+01:02:05,030 --> 01:02:08,150
+I guess you could compute it in,
+like, linear time or something.
+
+1254
+01:02:08,150 --> 01:02:10,680
+It's not a good plan.
+
+1255
+01:02:10,680 --> 01:02:12,600
+We need to break down
+the certificates that
+
+1256
+01:02:12,600 --> 01:02:16,359
+only involve a constant
+number of things
+
+1257
+01:02:16,359 --> 01:02:17,400
+and maintain the minimum.
+
+1258
+01:02:17,400 --> 01:02:21,920
+And somehow, I want to get below
+quadratic number of events,
+
+1259
+01:02:21,920 --> 01:02:23,810
+in the worst case.
+
+1260
+01:02:23,810 --> 01:02:25,080
+And you can.
+
+1261
+01:02:25,080 --> 01:02:28,521
+And you do it with a heap.
+
+1262
+01:02:28,521 --> 01:02:29,145
+Remember heaps?
+
+1263
+01:02:29,145 --> 01:02:33,090
+
+
+1264
+01:02:33,090 --> 01:02:35,080
+Store min heap.
+
+1265
+01:02:35,080 --> 01:02:37,872
+So min heap has this property.
+
+1266
+01:02:37,872 --> 01:02:41,550
+You have x, y, and z.
+
+1267
+01:02:41,550 --> 01:02:43,920
+Then x is less
+than or equal to y,
+
+1268
+01:02:43,920 --> 01:02:45,790
+and x is less than
+or equal to z.
+
+1269
+01:02:45,790 --> 01:02:48,220
+This is nice, because--
+local property.
+
+1270
+01:02:48,220 --> 01:02:51,390
+These are my certificates.
+
+1271
+01:02:51,390 --> 01:02:55,230
+For every node x, I have
+to have this property.
+
+1272
+01:02:55,230 --> 01:02:58,324
+So I have order n certificates.
+
+1273
+01:02:58,324 --> 01:03:00,941
+
+
+1274
+01:03:00,941 --> 01:03:01,440
+That's good.
+
+1275
+01:03:01,440 --> 01:03:02,880
+I had order n
+certificates before.
+
+1276
+01:03:02,880 --> 01:03:05,190
+But I claim these,
+magically, are
+
+1277
+01:03:05,190 --> 01:03:08,070
+easier to maintain than
+those, even though they
+
+1278
+01:03:08,070 --> 01:03:10,770
+look almost the same--
+
+1279
+01:03:10,770 --> 01:03:11,410
+kind of crazy.
+
+1280
+01:03:11,410 --> 01:03:13,760
+
+
+1281
+01:03:13,760 --> 01:03:15,510
+I don't know if I
+really need to write it,
+
+1282
+01:03:15,510 --> 01:03:17,470
+but how do we do an event?
+
+1283
+01:03:17,470 --> 01:03:21,930
+
+
+1284
+01:03:21,930 --> 01:03:24,900
+If x and y are about
+to invert in order--
+
+1285
+01:03:24,900 --> 01:03:27,060
+so currently, x lets me go to y.
+
+1286
+01:03:27,060 --> 01:03:29,520
+In a moment, x will
+be bigger than y.
+
+1287
+01:03:29,520 --> 01:03:33,270
+I swap x and y, update
+all the certificates--
+
+1288
+01:03:33,270 --> 01:03:34,250
+constant for each.
+
+1289
+01:03:34,250 --> 01:03:36,084
+There's two items I'm moving.
+
+1290
+01:03:36,084 --> 01:03:38,250
+Each one is involved in a
+constant of certificates--
+
+1291
+01:03:38,250 --> 01:03:40,440
+three now, instead of two--
+
+1292
+01:03:40,440 --> 01:03:43,339
+but constant number of
+certificate changes and stuff--
+
+1293
+01:03:43,339 --> 01:03:44,130
+AUDIENCE: Question.
+
+1294
+01:03:44,130 --> 01:03:45,254
+ERIK DEMAINE: --log n time.
+
+1295
+01:03:45,254 --> 01:03:46,810
+I update the priority queue.
+
+1296
+01:03:46,810 --> 01:03:47,310
+Question?
+
+1297
+01:03:47,310 --> 01:03:48,393
+AUDIENCE: How is it three?
+
+1298
+01:03:48,393 --> 01:03:51,612
+
+
+1299
+01:03:51,612 --> 01:03:53,070
+ERIK DEMAINE: Why
+is it three? x is
+
+1300
+01:03:53,070 --> 01:03:54,940
+involved in a certificate
+with its two children,
+
+1301
+01:03:54,940 --> 01:03:55,773
+and with its parent.
+
+1302
+01:03:55,773 --> 01:03:58,820
+Its parent has a
+relation, as well.
+
+1303
+01:03:58,820 --> 01:03:59,320
+Yeah.
+
+1304
+01:03:59,320 --> 01:04:03,090
+So you have to be careful
+in counting locality.
+
+1305
+01:04:03,090 --> 01:04:05,920
+How many certificates
+in each object in?
+
+1306
+01:04:05,920 --> 01:04:09,870
+OK so we're responsive--
+log n time, local, constant,
+
+1307
+01:04:09,870 --> 01:04:11,840
+certificates per object,
+compact, linear number
+
+1308
+01:04:11,840 --> 01:04:13,950
+certificates-- all
+these are the same.
+
+1309
+01:04:13,950 --> 01:04:16,200
+Big issue is about efficiency.
+
+1310
+01:04:16,200 --> 01:04:18,720
+How many events is
+it, in the worst case?
+
+1311
+01:04:18,720 --> 01:04:22,020
+How many events do I need?
+
+1312
+01:04:22,020 --> 01:04:27,780
+OK, here, for
+kinetic heap, where
+
+1313
+01:04:27,780 --> 01:04:29,830
+I want to maintain the
+minimum at all times,
+
+1314
+01:04:29,830 --> 01:04:32,610
+there's actually a
+very clear lower bound.
+
+1315
+01:04:32,610 --> 01:04:36,800
+The number of events--
+
+1316
+01:04:36,800 --> 01:04:39,210
+or let's say, the number
+of changes to the min--
+
+1317
+01:04:39,210 --> 01:04:43,580
+
+
+1318
+01:04:43,580 --> 01:04:46,020
+I think this is what some
+people call external events.
+
+1319
+01:04:46,020 --> 01:04:48,270
+Like, you can't control
+when the min changes.
+
+1320
+01:04:48,270 --> 01:04:53,610
+The user controls that by how
+they set up the trajectories.
+
+1321
+01:04:53,610 --> 01:04:57,015
+Changes to the min is at
+least n in the worst case.
+
+1322
+01:04:57,015 --> 01:05:02,847
+
+
+1323
+01:05:02,847 --> 01:05:04,180
+It's pretty easy to set this up.
+
+1324
+01:05:04,180 --> 01:05:06,940
+You have a point, another point
+moving at constant velocity
+
+1325
+01:05:06,940 --> 01:05:08,800
+to the left, it will overtake.
+
+1326
+01:05:08,800 --> 01:05:12,220
+You have another point farther
+away, with a bigger velocity,
+
+1327
+01:05:12,220 --> 01:05:12,850
+to the left.
+
+1328
+01:05:12,850 --> 01:05:16,960
+It will overtake after this
+one overtakes-- and, you know,
+
+1329
+01:05:16,960 --> 01:05:17,800
+something like this.
+
+1330
+01:05:17,800 --> 01:05:19,383
+You've got to make
+sure they don't all
+
+1331
+01:05:19,383 --> 01:05:20,590
+cross at the same moment.
+
+1332
+01:05:20,590 --> 01:05:23,173
+But this one will go first, and
+then this guy will cross over.
+
+1333
+01:05:23,173 --> 01:05:24,700
+And eventually--
+
+1334
+01:05:24,700 --> 01:05:26,200
+So it's easy to set up.
+
+1335
+01:05:26,200 --> 01:05:28,540
+The min can change a
+linear number of times.
+
+1336
+01:05:28,540 --> 01:05:32,180
+I claim in this data
+structure, well, of course,
+
+1337
+01:05:32,180 --> 01:05:34,630
+the min will change, at most,
+a linear number of times.
+
+1338
+01:05:34,630 --> 01:05:36,580
+Well, it's not
+clear it's at most.
+
+1339
+01:05:36,580 --> 01:05:37,260
+But that's true.
+
+1340
+01:05:37,260 --> 01:05:38,760
+What we care about
+though, is, we're
+
+1341
+01:05:38,760 --> 01:05:40,870
+storing way more
+certificates than the min.
+
+1342
+01:05:40,870 --> 01:05:42,910
+We have a linear
+number of certificates.
+
+1343
+01:05:42,910 --> 01:05:47,170
+I claim the total number of
+events in this data structure,
+
+1344
+01:05:47,170 --> 01:05:50,110
+if there are no change
+operations, if we just
+
+1345
+01:05:50,110 --> 01:05:52,060
+advance to infinity--
+
+1346
+01:05:52,060 --> 01:05:55,060
+number of events
+is order n log n.
+
+1347
+01:05:55,060 --> 01:05:58,230
+
+
+1348
+01:05:58,230 --> 01:06:00,160
+And so we call the
+efficiency log n,
+
+1349
+01:06:00,160 --> 01:06:04,750
+because you're log in factor
+away from this lower bound.
+
+1350
+01:06:04,750 --> 01:06:06,310
+This is the interesting part.
+
+1351
+01:06:06,310 --> 01:06:07,718
+And this requires a proof.
+
+1352
+01:06:07,718 --> 01:06:39,620
+
+
+1353
+01:06:39,620 --> 01:06:42,050
+So why is the number of
+events order n log n?
+
+1354
+01:06:42,050 --> 01:06:50,330
+We're going to prove this by
+amortization, with a somewhat
+
+1355
+01:06:50,330 --> 01:06:51,985
+tedious potential function.
+
+1356
+01:06:51,985 --> 01:06:53,360
+But it's sort of
+the obvious one.
+
+1357
+01:06:53,360 --> 01:07:03,230
+
+
+1358
+01:07:03,230 --> 01:07:07,460
+At a time t, I wanted to find
+my potential at time t to be,
+
+1359
+01:07:07,460 --> 01:07:09,450
+how many events will
+happen in the future?
+
+1360
+01:07:09,450 --> 01:07:11,870
+This is the thing
+I want to bound.
+
+1361
+01:07:11,870 --> 01:07:15,132
+So I want to prove this is
+order n log n at time zero.
+
+1362
+01:07:15,132 --> 01:07:17,090
+But let's think about
+how it changes over time.
+
+1363
+01:07:17,090 --> 01:07:22,290
+
+
+1364
+01:07:22,290 --> 01:07:27,185
+So I'm going to rewrite
+this as follows.
+
+1365
+01:07:27,185 --> 01:07:56,066
+
+
+1366
+01:07:56,066 --> 01:08:00,320
+I'm going to Sum
+over all items x.
+
+1367
+01:08:00,320 --> 01:08:03,180
+And we're thinking about
+the potential at time t.
+
+1368
+01:08:03,180 --> 01:08:05,520
+So I look-- x is in some node.
+
+1369
+01:08:05,520 --> 01:08:07,670
+And which node it's
+in changes over time.
+
+1370
+01:08:07,670 --> 01:08:09,600
+But at time t,
+it's in some node.
+
+1371
+01:08:09,600 --> 01:08:11,620
+I look at all the
+descendants of that node.
+
+1372
+01:08:11,620 --> 01:08:13,602
+I look at those items.
+
+1373
+01:08:13,602 --> 01:08:15,060
+And I see which of
+those items will
+
+1374
+01:08:15,060 --> 01:08:17,939
+overtake x in a future time.
+
+1375
+01:08:17,939 --> 01:08:19,529
+Those are the ones
+that I care about.
+
+1376
+01:08:19,529 --> 01:08:25,910
+When you overtake an ancestor,
+that's when an event happens.
+
+1377
+01:08:25,910 --> 01:08:28,380
+I claim these two
+things are equal.
+
+1378
+01:08:28,380 --> 01:08:30,600
+I probably don't even
+need to prove that.
+
+1379
+01:08:30,600 --> 01:08:32,622
+So this is in parentheses.
+
+1380
+01:08:32,622 --> 01:08:34,080
+Don't worry about
+this being equal.
+
+1381
+01:08:34,080 --> 01:08:35,746
+Think of this as the
+potential function.
+
+1382
+01:08:35,746 --> 01:08:40,380
+
+
+1383
+01:08:40,380 --> 01:08:44,340
+Now, I want to look at an
+event and see how this changes.
+
+1384
+01:08:44,340 --> 01:08:46,800
+I need a little
+bit more notation.
+
+1385
+01:08:46,800 --> 01:08:53,189
+I'm going to call this
+thing phi of t comma x.
+
+1386
+01:08:53,189 --> 01:08:55,859
+So phi of t is the sum over
+all x of this thing, which
+
+1387
+01:08:55,859 --> 01:08:57,720
+is phi of t comma x--
+
+1388
+01:08:57,720 --> 01:08:59,760
+number of descendants
+of x at this time that
+
+1389
+01:08:59,760 --> 01:09:02,729
+will, in the future,
+overtake x, meaning their key
+
+1390
+01:09:02,729 --> 01:09:05,290
+will get larger than x.
+
+1391
+01:09:05,290 --> 01:09:06,300
+OK.
+
+1392
+01:09:06,300 --> 01:09:12,010
+I can also expand phi
+of t, x in a simple way.
+
+1393
+01:09:12,010 --> 01:09:13,260
+It's kind of trivial.
+
+1394
+01:09:13,260 --> 01:09:18,840
+But if I look at each child
+of x-- there's two of them--
+
+1395
+01:09:18,840 --> 01:09:27,300
+call that y-- and then
+measure how many descendants
+
+1396
+01:09:27,300 --> 01:09:38,340
+of y at time t will overtake x?
+
+1397
+01:09:38,340 --> 01:09:39,960
+So it's almost the
+same words, but I
+
+1398
+01:09:39,960 --> 01:09:43,410
+changed one of the x's to
+a y-- but only one of them.
+
+1399
+01:09:43,410 --> 01:09:46,399
+
+
+1400
+01:09:46,399 --> 01:09:50,399
+Sorry-- "future" I
+write greater than "t."
+
+1401
+01:09:50,399 --> 01:09:52,770
+This is a different quantity--
+slightly different--
+
+1402
+01:09:52,770 --> 01:09:57,360
+which I'm going to call
+phi of t comma x comma y.
+
+1403
+01:09:57,360 --> 01:09:59,160
+I just need to be able
+to talk about this.
+
+1404
+01:09:59,160 --> 01:10:02,560
+So this is mostly to
+introduce notation.
+
+1405
+01:10:02,560 --> 01:10:06,504
+OK, and descendants of y--
+this is including y itself.
+
+1406
+01:10:06,504 --> 01:10:08,670
+So there's y and all of its
+children-- descendants--
+
+1407
+01:10:08,670 --> 01:10:10,430
+whatever--
+
+1408
+01:10:10,430 --> 01:10:12,330
+which are those that
+will overtake x.
+
+1409
+01:10:12,330 --> 01:10:13,885
+If I add that up
+for both children,
+
+1410
+01:10:13,885 --> 01:10:15,510
+that is the total
+number of descendants
+
+1411
+01:10:15,510 --> 01:10:18,060
+of x that will overtake x.
+
+1412
+01:10:18,060 --> 01:10:20,190
+So this equality is trivial.
+
+1413
+01:10:20,190 --> 01:10:23,730
+Mainly, I wanted
+to introduce that.
+
+1414
+01:10:23,730 --> 01:10:24,900
+OK.
+
+1415
+01:10:24,900 --> 01:10:26,010
+So what now?
+
+1416
+01:10:26,010 --> 01:10:28,320
+Let's look at an event,
+and see what changes.
+
+1417
+01:10:28,320 --> 01:10:46,530
+
+
+1418
+01:10:46,530 --> 01:10:51,460
+So-- try a little bigger--
+
+1419
+01:10:51,460 --> 01:10:54,370
+x, y, z.
+
+1420
+01:10:54,370 --> 01:10:58,630
+Let's say we need to
+change it to y, x, z.
+
+1421
+01:10:58,630 --> 01:11:02,920
+Because y is about
+to overtake x.
+
+1422
+01:11:02,920 --> 01:11:05,316
+How does the potential change?
+
+1423
+01:11:05,316 --> 01:11:09,970
+OK, well, potential is the
+sum of all these phi t, x's.
+
+1424
+01:11:09,970 --> 01:11:14,650
+So which of these
+phi t, x's change?
+
+1425
+01:11:14,650 --> 01:11:16,441
+I claim that phi of--
+
+1426
+01:11:16,441 --> 01:11:18,940
+I'm going to call it t-plus,
+which is the moment right after
+
+1427
+01:11:18,940 --> 01:11:22,750
+now-- infintesimally larger--
+
+1428
+01:11:22,750 --> 01:11:25,720
+I claim it does not
+change for most vertices.
+
+1429
+01:11:25,720 --> 01:11:29,050
+
+
+1430
+01:11:29,050 --> 01:11:30,730
+It only changes for x and y.
+
+1431
+01:11:30,730 --> 01:11:33,980
+If x and y are the guys
+that are switching order,
+
+1432
+01:11:33,980 --> 01:11:36,230
+this will not change
+for any others.
+
+1433
+01:11:36,230 --> 01:11:36,830
+Why is that?
+
+1434
+01:11:36,830 --> 01:11:39,371
+Because we're looking at number
+of descendants to some vertex
+
+1435
+01:11:39,371 --> 01:11:41,270
+that will overtake that vertex.
+
+1436
+01:11:41,270 --> 01:11:42,910
+So do the descendants change?
+
+1437
+01:11:42,910 --> 01:11:43,630
+No.
+
+1438
+01:11:43,630 --> 01:11:45,730
+Descendants of x and y
+change, but no one else,
+
+1439
+01:11:45,730 --> 01:11:47,190
+their descendants change.
+
+1440
+01:11:47,190 --> 01:11:50,980
+This is just a swap of
+two adjacent elements.
+
+1441
+01:11:50,980 --> 01:11:52,030
+Will overtaking change?
+
+1442
+01:11:52,030 --> 01:11:52,530
+No.
+
+1443
+01:11:52,530 --> 01:11:54,130
+I mean, overtaking
+doesn't change.
+
+1444
+01:11:54,130 --> 01:11:56,380
+If you're going to be overtaken
+by x before, you still
+
+1445
+01:11:56,380 --> 01:11:58,120
+be overtaken by x.
+
+1446
+01:11:58,120 --> 01:11:59,770
+And it's still a
+descendant-- unless it
+
+1447
+01:11:59,770 --> 01:12:02,830
+was y. y is the only one
+for which it changed.
+
+1448
+01:12:02,830 --> 01:12:05,400
+OK, so we only have
+to think about x and y
+
+1449
+01:12:05,400 --> 01:12:08,456
+and how their
+potentials are changing.
+
+1450
+01:12:08,456 --> 01:12:08,955
+OK.
+
+1451
+01:12:08,955 --> 01:12:12,250
+
+
+1452
+01:12:12,250 --> 01:12:15,660
+So let's look at x.
+
+1453
+01:12:15,660 --> 01:12:17,500
+x is pretty simple.
+
+1454
+01:12:17,500 --> 01:12:18,265
+x went down.
+
+1455
+01:12:18,265 --> 01:12:21,700
+
+
+1456
+01:12:21,700 --> 01:12:23,600
+So we care about now
+the descendants of x.
+
+1457
+01:12:23,600 --> 01:12:27,290
+Those are what used to
+be the descendants of y.
+
+1458
+01:12:27,290 --> 01:12:31,480
+So what are the descendants
+of y that will overtake x?
+
+1459
+01:12:31,480 --> 01:12:37,616
+That is phi of t, x, y.
+
+1460
+01:12:37,616 --> 01:12:38,740
+That's the definition here.
+
+1461
+01:12:38,740 --> 01:12:41,440
+The descendants of y
+that will overtake x-- we
+
+1462
+01:12:41,440 --> 01:12:43,240
+had that written down.
+
+1463
+01:12:43,240 --> 01:12:46,915
+So that is its new potential,
+except as a minus 1,
+
+1464
+01:12:46,915 --> 01:12:49,840
+because y used to
+be a descendant that
+
+1465
+01:12:49,840 --> 01:12:50,690
+would overtake x.
+
+1466
+01:12:50,690 --> 01:12:53,652
+But it just overtook x--
+not going to happen again.
+
+1467
+01:12:53,652 --> 01:12:55,120
+Not gonna happen again.
+
+1468
+01:12:55,120 --> 01:12:57,400
+I'm assuming here affine
+motion, I suppose.
+
+1469
+01:12:57,400 --> 01:12:59,800
+It could really happen a
+constant number of times.
+
+1470
+01:12:59,800 --> 01:13:03,430
+But let's keep it simple.
+
+1471
+01:13:03,430 --> 01:13:04,840
+OK.
+
+1472
+01:13:04,840 --> 01:13:05,636
+That was easy.
+
+1473
+01:13:05,636 --> 01:13:06,760
+Next one's a little harder.
+
+1474
+01:13:06,760 --> 01:13:10,360
+
+
+1475
+01:13:10,360 --> 01:13:11,230
+The other one is y.
+
+1476
+01:13:11,230 --> 01:13:14,050
+
+
+1477
+01:13:14,050 --> 01:13:18,310
+What is the new potential of y?
+
+1478
+01:13:18,310 --> 01:13:19,720
+y has new descendants now.
+
+1479
+01:13:19,720 --> 01:13:22,700
+It used to just have
+this many descendants.
+
+1480
+01:13:22,700 --> 01:13:24,700
+It still has those descendants.
+
+1481
+01:13:24,700 --> 01:13:26,590
+It now has x, which
+doesn't matter,
+
+1482
+01:13:26,590 --> 01:13:29,380
+if we assume it will
+never be overtaken again.
+
+1483
+01:13:29,380 --> 01:13:32,980
+And now, it has this
+whole subtree of z.
+
+1484
+01:13:32,980 --> 01:13:37,960
+So we have whatever it used
+to have, which is phi of t, y.
+
+1485
+01:13:37,960 --> 01:13:40,210
+That's all it's old descendants.
+
+1486
+01:13:40,210 --> 01:13:46,450
+And now we have this new
+thing phi of t, y, z.
+
+1487
+01:13:46,450 --> 01:13:49,450
+If you plug that into here, that
+is the number of descendants
+
+1488
+01:13:49,450 --> 01:13:52,090
+of z that will overtake y.
+
+1489
+01:13:52,090 --> 01:13:54,970
+
+
+1490
+01:13:54,970 --> 01:13:57,882
+That's the new thing
+that we add on.
+
+1491
+01:13:57,882 --> 01:13:58,840
+So this is an increase.
+
+1492
+01:13:58,840 --> 01:14:00,580
+This was a decrease and
+this is an increase.
+
+1493
+01:14:00,580 --> 01:14:02,080
+We hope that they're
+about the same.
+
+1494
+01:14:02,080 --> 01:14:05,500
+In fact, they will
+be basically equal.
+
+1495
+01:14:05,500 --> 01:14:11,870
+So first claim is this is,
+at most, this other thing--
+
+1496
+01:14:11,870 --> 01:14:14,204
+phi of t, y--
+
+1497
+01:14:14,204 --> 01:14:17,046
+phi of t, x, z.
+
+1498
+01:14:17,046 --> 01:14:22,970
+
+
+1499
+01:14:22,970 --> 01:14:26,432
+So I'm just replacing
+this y with an x.
+
+1500
+01:14:26,432 --> 01:14:28,520
+Why is this true?
+
+1501
+01:14:28,520 --> 01:14:34,200
+Because this is overtaking y.
+
+1502
+01:14:34,200 --> 01:14:37,910
+If you're going to
+overtake y at this time,
+
+1503
+01:14:37,910 --> 01:14:39,790
+you would overtake
+x at this time.
+
+1504
+01:14:39,790 --> 01:14:41,650
+Because x and y are
+equal right now.
+
+1505
+01:14:41,650 --> 01:14:42,890
+I'm pretty sure this
+is actually equal.
+
+1506
+01:14:42,890 --> 01:14:45,140
+I don't know why I wrote my
+notes "less than or equal to."
+
+1507
+01:14:45,140 --> 01:14:46,640
+Less than or equal
+to is all I need.
+
+1508
+01:14:46,640 --> 01:14:48,170
+But I think, at
+this moment in time,
+
+1509
+01:14:48,170 --> 01:14:51,798
+when they're actually
+equal to each other,
+
+1510
+01:14:51,798 --> 01:14:53,810
+it doesn't matter whether
+you have x and y here.
+
+1511
+01:14:53,810 --> 01:14:55,185
+You will overtake
+one if and only
+
+1512
+01:14:55,185 --> 01:14:57,580
+if you overtake the
+other at this moment.
+
+1513
+01:14:57,580 --> 01:14:58,500
+AUDIENCE: [INAUDIBLE]
+
+1514
+01:14:58,500 --> 01:14:59,210
+ERIK DEMAINE: No, I see.
+
+1515
+01:14:59,210 --> 01:14:59,710
+Right.
+
+1516
+01:14:59,710 --> 01:15:02,060
+Actually, this is
+about future time.
+
+1517
+01:15:02,060 --> 01:15:04,220
+In future time, we
+know that y is always
+
+1518
+01:15:04,220 --> 01:15:07,520
+going to be less than x,
+because it's moving up.
+
+1519
+01:15:07,520 --> 01:15:10,070
+In future time,
+if you overtake y,
+
+1520
+01:15:10,070 --> 01:15:13,669
+you'll certainly
+overtake x, because--
+
+1521
+01:15:13,669 --> 01:15:14,710
+no, the other way around.
+
+1522
+01:15:14,710 --> 01:15:22,710
+If you overtake x, meaning you
+go below x, one of these ways--
+
+1523
+01:15:22,710 --> 01:15:24,920
+overtaking is actually
+going up in the tree,
+
+1524
+01:15:24,920 --> 01:15:26,900
+but it's actually
+getting smaller in value.
+
+1525
+01:15:26,900 --> 01:15:29,510
+If you get smaller than
+y, you rise above y.
+
+1526
+01:15:29,510 --> 01:15:31,730
+That means you will have
+already risen above x.
+
+1527
+01:15:31,730 --> 01:15:34,696
+You already be a
+value smaller than x.
+
+1528
+01:15:34,696 --> 01:15:36,320
+So hopefully, that
+is the way that it's
+
+1529
+01:15:36,320 --> 01:15:38,110
+less than or equal to.
+
+1530
+01:15:38,110 --> 01:15:39,510
+Because that's what we need.
+
+1531
+01:15:39,510 --> 01:15:40,610
+OK, good.
+
+1532
+01:15:40,610 --> 01:15:42,821
+Now, I understand.
+
+1533
+01:15:42,821 --> 01:15:45,270
+AUDIENCE: So at this point,
+we're assuming affine?
+
+1534
+01:15:45,270 --> 01:15:46,770
+ERIK DEMAINE: We're
+assuming affine.
+
+1535
+01:15:46,770 --> 01:15:47,270
+Yeah.
+
+1536
+01:15:47,270 --> 01:15:48,140
+Sorry.
+
+1537
+01:15:48,140 --> 01:15:49,464
+Forgot to mention that.
+
+1538
+01:15:49,464 --> 01:15:51,130
+I think this works
+for pseudo algebraic,
+
+1539
+01:15:51,130 --> 01:15:54,620
+but this proof does not,
+assuming that x and y only
+
+1540
+01:15:54,620 --> 01:15:56,860
+switch places once.
+
+1541
+01:15:56,860 --> 01:16:03,650
+OK, then we have this simple
+equation, which is phi of t,
+
+1542
+01:16:03,650 --> 01:16:07,490
+x equals phi of t, x,
+y plus phi of t, x, z,
+
+1543
+01:16:07,490 --> 01:16:09,900
+where you just sum
+over the two children.
+
+1544
+01:16:09,900 --> 01:16:12,470
+So this is phi of t, x, z.
+
+1545
+01:16:12,470 --> 01:16:14,720
+So-- I need more space, I guess.
+
+1546
+01:16:14,720 --> 01:16:22,550
+
+
+1547
+01:16:22,550 --> 01:16:30,260
+So phi of t, x, z, that is phi
+of t, x minus phi of t, x, y.
+
+1548
+01:16:30,260 --> 01:16:35,270
+So we have, let's say,
+on the left-hand side,
+
+1549
+01:16:35,270 --> 01:16:43,490
+is less than or equal
+to phi of t, y plus--
+
+1550
+01:16:43,490 --> 01:16:46,090
+this is what we had
+before-- t of x, z.
+
+1551
+01:16:46,090 --> 01:16:49,880
+But now, that is the same as phi
+of t, x minus the other child.
+
+1552
+01:16:49,880 --> 01:16:54,700
+
+
+1553
+01:16:54,700 --> 01:16:55,460
+Sorry-- y.
+
+1554
+01:16:55,460 --> 01:16:58,230
+
+
+1555
+01:16:58,230 --> 01:17:01,340
+OK, that was just that equation.
+
+1556
+01:17:01,340 --> 01:17:02,690
+Now, do things simplify?
+
+1557
+01:17:02,690 --> 01:17:04,124
+Hope so.
+
+1558
+01:17:04,124 --> 01:17:05,245
+Phi of t, y--
+
+1559
+01:17:05,245 --> 01:17:10,370
+
+
+1560
+01:17:10,370 --> 01:17:11,240
+these two things--
+
+1561
+01:17:11,240 --> 01:17:16,170
+
+
+1562
+01:17:16,170 --> 01:17:18,330
+OK.
+
+1563
+01:17:18,330 --> 01:17:19,890
+Not so pretty.
+
+1564
+01:17:19,890 --> 01:17:24,950
+What we care about is
+the sum of these things.
+
+1565
+01:17:24,950 --> 01:17:25,830
+We care about sum--
+
+1566
+01:17:25,830 --> 01:17:28,960
+the overall potential.
+
+1567
+01:17:28,960 --> 01:17:36,270
+So we want phi of t-plus
+is phi of t plus something.
+
+1568
+01:17:36,270 --> 01:17:42,549
+How it changes is, well, how
+does phi of t prime x change?
+
+1569
+01:17:42,549 --> 01:17:43,590
+Well, it went down a lot.
+
+1570
+01:17:43,590 --> 01:17:47,990
+It went all the way
+down to phi of t, x, y.
+
+1571
+01:17:47,990 --> 01:17:52,390
+Well, actually, we just
+add these together.
+
+1572
+01:17:52,390 --> 01:17:54,160
+Add them up.
+
+1573
+01:17:54,160 --> 01:17:54,867
+This is messy.
+
+1574
+01:17:54,867 --> 01:17:55,366
+Sorry.
+
+1575
+01:17:55,366 --> 01:18:00,500
+
+
+1576
+01:18:00,500 --> 01:18:02,280
+Let's look at this sum--
+
+1577
+01:18:02,280 --> 01:18:07,250
+phi of t plus x and y.
+
+1578
+01:18:07,250 --> 01:18:09,290
+So we get this thing--
+
+1579
+01:18:09,290 --> 01:18:15,210
+phi of t, x, y minus 1.
+
+1580
+01:18:15,210 --> 01:18:22,760
+And then we get this thing-- so
+phi of t, y, plus phi of t, x,
+
+1581
+01:18:22,760 --> 01:18:27,220
+minus phi of t, x, y.
+
+1582
+01:18:27,220 --> 01:18:31,220
+It's an elaborate way of
+saying this cancels with this.
+
+1583
+01:18:31,220 --> 01:18:33,200
+So we are left with
+the old value--
+
+1584
+01:18:33,200 --> 01:18:36,690
+phi of t, x, plus
+phi of t, y, minus 1.
+
+1585
+01:18:36,690 --> 01:18:38,990
+So that means phi--
+
+1586
+01:18:38,990 --> 01:18:42,650
+sorry, this is less
+than or equal to.
+
+1587
+01:18:42,650 --> 01:18:48,210
+This means phi of t-plus is less
+than or equal phi of t minus 1.
+
+1588
+01:18:48,210 --> 01:18:50,990
+In other words, every
+time an event happens,
+
+1589
+01:18:50,990 --> 01:18:54,710
+the potential goes
+down by at least one.
+
+1590
+01:18:54,710 --> 01:19:00,020
+This is basically confirming
+this intuition, but roughly.
+
+1591
+01:19:00,020 --> 01:19:01,730
+But our definition
+was this-- the number
+
+1592
+01:19:01,730 --> 01:19:06,761
+of descendants of x that
+overtake x in the future.
+
+1593
+01:19:06,761 --> 01:19:09,044
+How big could this thing be?
+
+1594
+01:19:09,044 --> 01:19:11,210
+It is, at most, the sum
+over all nodes of the number
+
+1595
+01:19:11,210 --> 01:19:13,160
+of descendants of that node.
+
+1596
+01:19:13,160 --> 01:19:16,520
+So it is, by definition,
+at most, n log n.
+
+1597
+01:19:16,520 --> 01:19:21,820
+If we look at phi of
+0, it's order n log n.
+
+1598
+01:19:21,820 --> 01:19:24,210
+And what we're doing is
+using a balanced heap here.
+
+1599
+01:19:24,210 --> 01:19:27,230
+And so for order n
+log n, initially,
+
+1600
+01:19:27,230 --> 01:19:29,570
+in every event that
+happens, we go down by one.
+
+1601
+01:19:29,570 --> 01:19:31,690
+And we're never negative.
+
+1602
+01:19:31,690 --> 01:19:34,360
+That thing is
+always non-negative.
+
+1603
+01:19:34,360 --> 01:19:37,340
+Then the number of events
+is, at most, order n log n.
+
+1604
+01:19:37,340 --> 01:19:39,010
+Cool?
+
+1605
+01:19:39,010 --> 01:19:40,940
+OK, I only have one
+more page of notes
+
+1606
+01:19:40,940 --> 01:19:42,770
+to cover in zero minutes--
+
+1607
+01:19:42,770 --> 01:19:44,820
+about 15 seconds.
+
+1608
+01:19:44,820 --> 01:19:47,690
+Let me quickly tell you
+about what's on this page,
+
+1609
+01:19:47,690 --> 01:19:49,730
+and you can read it at home.
+
+1610
+01:19:49,730 --> 01:19:52,010
+It's a little survey of lots
+of different kinetic data
+
+1611
+01:19:52,010 --> 01:19:56,330
+structures, in particular,
+for more than one dimension.
+
+1612
+01:19:56,330 --> 01:19:58,282
+So there's a lot of
+work on 2D convex hull.
+
+1613
+01:19:58,282 --> 01:19:59,990
+You have moving points
+in two dimensions.
+
+1614
+01:19:59,990 --> 01:20:02,120
+You want to maintain
+the convex hull.
+
+1615
+01:20:02,120 --> 01:20:03,920
+The number of events--
+
+1616
+01:20:03,920 --> 01:20:06,740
+the best we know how
+to achieve is order n
+
+1617
+01:20:06,740 --> 01:20:08,420
+to the two plus epsilon--
+
+1618
+01:20:08,420 --> 01:20:10,420
+a little bit bigger
+than n squared.
+
+1619
+01:20:10,420 --> 01:20:13,100
+And there's a lower bound that
+it can change n squared times.
+
+1620
+01:20:13,100 --> 01:20:15,590
+So it's almost optimal--
+
+1621
+01:20:15,590 --> 01:20:18,680
+unknown how to do that in 3D.
+
+1622
+01:20:18,680 --> 01:20:21,800
+A problem that we solved in
+the open problems in this class
+
+1623
+01:20:21,800 --> 01:20:24,360
+two years ago is
+smallest enclosing disk.
+
+1624
+01:20:24,360 --> 01:20:26,750
+So you have points
+moving in the plane,
+
+1625
+01:20:26,750 --> 01:20:28,700
+and you want to maintain,
+what is the smallest
+
+1626
+01:20:28,700 --> 01:20:30,440
+enclosing disk of those points?
+
+1627
+01:20:30,440 --> 01:20:33,000
+Number of events we got was
+n to the 3 plus epsilon,
+
+1628
+01:20:33,000 --> 01:20:34,460
+which is a little bit painful.
+
+1629
+01:20:34,460 --> 01:20:36,200
+Best lower round is n squared--
+
+1630
+01:20:36,200 --> 01:20:37,784
+so still a gap there.
+
+1631
+01:20:37,784 --> 01:20:39,950
+Those closely related to
+another open problem, which
+
+1632
+01:20:39,950 --> 01:20:41,090
+is, you want to
+maintain something
+
+1633
+01:20:41,090 --> 01:20:42,437
+called a Delaunay triangulation.
+
+1634
+01:20:42,437 --> 01:20:43,770
+If you know what that is, great.
+
+1635
+01:20:43,770 --> 01:20:46,026
+If not, it's a
+big open problem--
+
+1636
+01:20:46,026 --> 01:20:47,900
+how many times can the
+Delaunay triangulation
+
+1637
+01:20:47,900 --> 01:20:51,384
+change if you have just points
+moving along straight lines?
+
+1638
+01:20:51,384 --> 01:20:52,550
+Best upper bound is n cubed.
+
+1639
+01:20:52,550 --> 01:20:55,722
+Best lower bound is n squared--
+so similar linear gap.
+
+1640
+01:20:55,722 --> 01:20:57,680
+If you just want to
+maintain some triangulation
+
+1641
+01:20:57,680 --> 01:21:00,390
+on your points,
+you can do better.
+
+1642
+01:21:00,390 --> 01:21:03,490
+Best upper bound is
+n to the 2.33333.
+
+1643
+01:21:03,490 --> 01:21:05,060
+Best lower bound is n squared.
+
+1644
+01:21:05,060 --> 01:21:07,710
+So a smaller gap--
+
+1645
+01:21:07,710 --> 01:21:10,460
+just cube root of n gap.
+
+1646
+01:21:10,460 --> 01:21:13,070
+Collision detection is probably
+the most obvious application
+
+1647
+01:21:13,070 --> 01:21:13,640
+here.
+
+1648
+01:21:13,640 --> 01:21:15,320
+You have a video game.
+
+1649
+01:21:15,320 --> 01:21:18,122
+Things are moving
+with known velocities.
+
+1650
+01:21:18,122 --> 01:21:19,580
+You update those
+velocities-- like,
+
+1651
+01:21:19,580 --> 01:21:21,530
+you have bullets, and
+people running around,
+
+1652
+01:21:21,530 --> 01:21:22,310
+and whatever you
+want to know when
+
+1653
+01:21:22,310 --> 01:21:24,920
+they bounce into each other--
+walls, which are stationary.
+
+1654
+01:21:24,920 --> 01:21:26,210
+When does that happen?
+
+1655
+01:21:26,210 --> 01:21:28,560
+There's pretty good algorithms
+for kinetic collision
+
+1656
+01:21:28,560 --> 01:21:29,060
+detection.
+
+1657
+01:21:29,060 --> 01:21:32,810
+Although, it's very unclear
+what efficient means.
+
+1658
+01:21:32,810 --> 01:21:34,670
+Because you want to
+optimize for the case
+
+1659
+01:21:34,670 --> 01:21:36,500
+when not many collisions happen.
+
+1660
+01:21:36,500 --> 01:21:39,800
+And these algorithms do-- in a
+certain sense, they're optimal.
+
+1661
+01:21:39,800 --> 01:21:42,797
+But it's much harder to
+state what that sense is.
+
+1662
+01:21:42,797 --> 01:21:44,630
+Minimum spanning tree
+is another one I have.
+
+1663
+01:21:44,630 --> 01:21:46,580
+This is tough.
+
+1664
+01:21:46,580 --> 01:21:49,400
+Easy thing to do is, you
+do kinetic predecessor
+
+1665
+01:21:49,400 --> 01:21:52,590
+on the entire sorted
+order of the edge lengths.
+
+1666
+01:21:52,590 --> 01:21:54,860
+And then you just run
+a [? stem ?] thing that
+
+1667
+01:21:54,860 --> 01:21:57,311
+processes the edges in order.
+
+1668
+01:21:57,311 --> 01:21:59,060
+So that gets a quadratic
+number of events.
+
+1669
+01:21:59,060 --> 01:22:01,685
+It's unknown whether you can do
+any better for minimum spanning
+
+1670
+01:22:01,685 --> 01:22:02,280
+tree.
+
+1671
+01:22:02,280 --> 01:22:05,080
+So that was your quick
+survey of kinetic.
+
+1672
+01:22:05,080 --> 01:22:07,550
+And that ends geometry.
+
+1673
+01:22:07,550 --> 01:22:09,100
+The end.

@@ -1,0 +1,41 @@
+{
+  "name": "video-subtitle-index",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NannamAksorn/video-subtitle-index.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NannamAksorn/video-subtitle-index/issues"
+  },
+  "homepage": "https://github.com/NannamAksorn/video-subtitle-index#readme",
+  "dependencies": {
+    "@google-cloud/language": "^2.1.0",
+    "cors": "^2.8.5",
+    "crc-32": "^1.2.0",
+    "express": "^4.16.4",
+    "glob": "^7.1.3",
+    "hashids": "^1.2.2",
+    "js-levenshtein": "^1.1.6",
+    "md5-file": "^4.0.0",
+    "srt-to-vtt": "^1.1.3",
+    "stemmer": "^1.0.3",
+    "subtitles-parser": "0.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}

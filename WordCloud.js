@@ -54,22 +54,51 @@ const saveInvertedIndex  = () => {
 }
 
 const saveWordCloud = (docId, wordCloudList) => {
-	fs.writeFile(`index/wordCloud/${docId}.json`, JSON.stringify(wordCloudList),err => handleError(err))
+	fs.writeFile(`wordCloud/${docId}.json`, JSON.stringify(wordCloudList),err => handleError(err))
 }
 
 const clearHtml = (text) => {
 	return text.replace(/<(?:.|\n)*?>/gm, '')
 }
 
+const sortByFrequencyAndFilter = (myArray) => 
+{
+	let newArray = []
+	let freq = {}
+
+	//Count Frequency of Occurances
+	let i=myArray.length-1
+	for (i;i>-1;i--)
+	{
+		var value = myArray[i]
+		freq[value]==null?freq[value]=1:freq[value]++
+	}
+
+	//Create Array of Filtered Values
+	for (let value in freq)
+	{
+		newArray.push(value)
+	}
+
+	//Define Sort Function and Return Sorted Results
+	function compareFreq(a,b)
+	{
+		return freq[b]-freq[a]
+	}
+
+	return newArray.sort(compareFreq)
+}
+
 const createDescription = (data, docid, entities) => {
-	const entities_list = entities.map(element => {
+	let entities_list = entities.map(element => {
 		return element.name
 	})
-	const shuffled = entities_list.sort(() => 0.5 - Math.random())
-	const entities_list80 = shuffled.slice(0, parseInt(shuffled.length* 0.8 ))
-	const entities_list60 = shuffled.slice(0, parseInt(shuffled.length* 0.6 ))
-	const entities_list40 = shuffled.slice(0, parseInt(shuffled.length* 0.4 ))
-	const entities_list20 = shuffled.slice(0, parseInt(shuffled.length* 0.2 ))
+	entities_list = sortByFrequencyAndFilter(entities_list)
+	// const shuffled = entities_list.sort(() => 0.5 - Math.random())
+	const entities_list80 = entities_list.slice(0, 20)
+	const entities_list60 = entities_list.slice(0, 15)
+	const entities_list40 = entities_list.slice(0, 10)
+	const entities_list20 = entities_list.slice(0, 5)
 
 	const description = {d80:'', d60:'',d40:'',d20:''}
 

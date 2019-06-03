@@ -3,8 +3,8 @@ const fs = require( 'fs')
 const glob = require('glob') 
 const path = require('path')
 const parser = require('subtitles-parser')
-const { isExist, addDoc, saveList} = require('./index/docID.js')
-const { addWordList } = require('./index/WordCloud.js')
+const { isExist, addDoc, saveList} = require('./docId.js')
+const { addWordList } = require('./WordCloud.js')
 
 process.env.GOOGLE_APPLICATION_CREDENTIALS = 'C:/video-scene-search-6b86db97fbf7.json'
 const language = require('@google-cloud/language')
@@ -32,14 +32,14 @@ const clearHtml = (text) => {
 const createVtt = (file) => {
 	let filename = path.basename(file)
 	let ext = path.extname(file)
-	let output = path.join('vtt', filename.replace(ext, '.vtt'))
+	let output = path.join('public/vtt', filename.replace(ext, '.vtt'))
 	fs.createReadStream(file)
 		.pipe(srt2vtt())
 		.pipe(fs.createWriteStream(output))
 
 }
 
-glob('srt/*/*', (err, files) => {
+glob('public/srt/*/*', (err, files) => {
 	files.forEach(file => {
 		if( !isExist(file)){
 			let docid = addDoc(file)

@@ -150,7 +150,7 @@ const query = (queryString) => {
 	})
 	Object.keys(returnList).forEach(category=>{
 		Object.keys(returnList[category]).forEach(docName=>{
-			let srt = fs.readFileSync(`./srt/${category}/${docName}.srt`, 'utf8')
+			let srt = fs.readFileSync(`./public/srt/${category}/${docName}.srt`, 'utf8')
 			let data = parser.fromSrt(srt, true)
 			let description = ''
 			for(let i=0; i < 5; i++){
@@ -194,7 +194,7 @@ const positionalIntersect = (p1, p2, k) => {
 }
 
 const subQuery = (category,docName, docID, queryString) => {
-	let srt = fs.readFileSync(`./srt/${category}/${docName}.srt`, 'utf8')
+	let srt = fs.readFileSync(`./public/srt/${category}/${docName}.srt`, 'utf8')
 	let data = parser.fromSrt(srt, true)
 	let querylist = parseQuery(queryString)
 	let returnDoc = []

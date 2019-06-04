@@ -137,25 +137,34 @@ const addWordList = (data, docid, entities) => {
 	createDescription(data, docid, entities )
 	saveEntitiesList(entities, docid)
 	let wordCloud = {0:{}}
+	const entities_list = entities.map(element => {
+		return element.name
+	})
 	data.forEach(srt =>{
 		let wordCloud_new = JSON.parse(JSON.stringify(wordCloud[srt.id - 1]))
+		entities_list.forEach(word => {
+			if(srt.text.includes(word)){
+				if(word in wordCloud_new){
+					wordCloud_new[word]++
+				} else {
+					wordCloud_new[word] = 1
+				}
+			}
+		})
+		wordCloud[srt.id] = wordCloud_new
 		let words = clearHtml(srt.text).match(/\S+/g) || []
 		words.forEach(word =>{
 			word = stemmer(word)
 			if(isWordExist(word)){
-				let fullWord = wordList[word].full
-				if (fullWord in wordCloud_new){
+				if (invertedIndex[word]['doc'][docid]){
 					invertedIndex[word]['doc'][docid]['sub'].push(srt.id)
-					wordCloud_new[fullWord] += 1
 				} else {
 					invertedIndex[word]['doc'][docid] = {}
 					invertedIndex[word]['doc'][docid]['sub'] =[srt.id]
-					wordCloud_new[fullWord] = 1
 				}
 				invertedIndex[word]['df'] += 1
 			}
 		})
-		wordCloud[srt.id] = wordCloud_new
 	})
 	// console.log(wordCloud)
 	saveWordCloud(docid, wordCloud)

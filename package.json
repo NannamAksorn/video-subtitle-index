@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node query",
-    "index": "node index"
+    "index": "node index",
+    "clear": "node clearIndex"
   },
   "repository": {
     "type": "git",

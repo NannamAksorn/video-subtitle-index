@@ -1,3 +1,20 @@
+process.env.GOOGLE_APPLICATION_CREDENTIALS = 'C:/video-scene-search-6b86db97fbf7.json'
+const {Translate} = require('@google-cloud/translate')
+const _ = require('lodash')
+const PROJECT_ID = 'video-scene-search'
+
+
+const translate = new Translate({PROJECT_ID})
+
+async function googleTranslate(text, target){
+	const [translation] = await translate.translate(text, target)
+	return translation
+}
+
+Promise.allValues = async (object) => {
+	return _.zipObject(_.keys(object), await Promise.all(_.values(object)))
+}
+
 const invertedIndex = require('./index/invertedIndex.json')
 const wordListCollection = require('./index/wordList.json')
 const docList = require('./index/docList.json')
@@ -255,8 +272,17 @@ app.get('/wordCloud/:docid', (req,res) => {
 	return res.send(JSON.stringify(getWordCloud(req.params.docid)))
 })
 
-app.get('/description/:docid', (req,res) => {
-	return res.send(JSON.stringify(getDescription(req.params.docid)))
+app.get('/description/:docid', async (req,res) => {
+	const description = getDescription(req.params.docid) 
+	const lang = req.query.lang
+	if (!lang || lang == 'en'){
+		return res.send(JSON.stringify(description))
+	} else {
+		let translated_description = await Promise.allValues(_.mapValues(description, async function(value) {	
+			return googleTranslate(value, lang)
+		}))
+		return res.send(JSON.stringify(translated_description))
+	}
 })
 
 

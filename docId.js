@@ -45,11 +45,12 @@ const addDoc = (filePath) => {
 	docList[lastDID] = {
 		'n': path.parse(filePath).base,
 		'd': new Date().getTime(),
-		'c': category
+		'c': category,
+		'h': hash
 	}
 	hashList[hash] = lastDID
 	lastDID += 1
-	return lastDID - 1
+	return [lastDID - 1, hash]
 }
 
 const handleError = (err) =>{

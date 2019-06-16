@@ -146,7 +146,6 @@ const suggestionSub = (docid,queryString) => {
 }
 
 const query = (queryString) => {
-
 	let querylist = parseQuery(queryString)
 	let returnList = {}
 	let returnDoc = []
